@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByCode, updateUserCommission, getAllUsers } from '@/lib/db';
+import { getUserByCode, updateUserCommission, getAllUsers, openDb } from '@/lib/db';
+import bcrypt from 'bcryptjs';
 
 // GET /api/users - Lista todos os usuários ou busca um usuário específico
 export async function GET(request: NextRequest) {
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PATCH /api/users - Atualiza comissão do usuário
+// PATCH /api/users - Atualiza comissão e senha do usuário
 export async function PATCH(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const codigo = searchParams.get('codigo');
@@ -41,21 +42,33 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const { comissao } = await request.json();
+    const { comissao, password } = await request.json();
 
-    if (!comissao) {
+    if (!comissao && !password) {
       return NextResponse.json(
-        { error: 'Comissão é obrigatória' },
+        { error: 'Informe comissão ou senha para atualizar' },
         { status: 400 }
       );
     }
 
-    const success = await updateUserCommission(codigo, comissao);
-    if (!success) {
-      return NextResponse.json({ error: 'Erro ao atualizar comissão' }, { status: 500 });
+    // Atualizar comissão se enviada
+    let success = true;
+    if (comissao) {
+      const result = await updateUserCommission(codigo, comissao);
+      if (!result) success = false;
     }
-    return NextResponse.json({ message: 'Comissão atualizada com sucesso' });
+    // Atualizar senha se enviada
+    if (password) {
+      const db = await openDb();
+      const hash = await bcrypt.hash(password, 12);
+      await db.run('UPDATE USERCC SET PASSWORD = ? WHERE USUARIO = ?', [hash, codigo]);
+      await db.close();
+    }
+    if (!success) {
+      return NextResponse.json({ error: 'Erro ao atualizar dados' }, { status: 500 });
+    }
+    return NextResponse.json({ message: 'Dados atualizados com sucesso' });
   } catch (error) {
-    return NextResponse.json({ error: 'Erro ao atualizar comissão' }, { status: 500 });
+    return NextResponse.json({ error: 'Erro ao atualizar dados' }, { status: 500 });
   }
 } 

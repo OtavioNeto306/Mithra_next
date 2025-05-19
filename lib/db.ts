@@ -13,7 +13,7 @@ export interface User {
 }
 
 // Função para abrir conexão com o banco
-async function openDb() {
+export async function openDb() {
   return open({
     filename: 'usuarios.db3',
     driver: sqlite3.Database
