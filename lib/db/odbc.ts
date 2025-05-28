@@ -1,5 +1,5 @@
-import odbc from 'odbc';
-import { dbConfig } from './config';
+//import odbc from 'odbc';
+//import { dbConfig } from './config';
 
 let connection: odbc.Connection | null = null;
 

@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByCode, updateUserCommission } from '@/lib/db';
 
-// GET /api/users/[codigo] - Busca usuário por código
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { codigo: string } }
-) {
+// Defina a interface explicitamente
+interface RouteContext {
+  params: {
+    codigo: string;
+  };
+}
+
+// GET /api/users/[codigo]
+export async function GET(request: NextRequest, context: RouteContext) { // Use a interface aqui
   try {
-    const user = await getUserByCode(params.codigo);
+    const { codigo } = context.params; // Desestruture aqui
+    const user = await getUserByCode(codigo); // Use 'codigo'
     if (!user) {
       return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
     }
@@ -17,12 +22,10 @@ export async function GET(
   }
 }
 
-// PATCH /api/users/[codigo] - Atualiza comissão do usuário
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { codigo: string } }
-) {
+// PATCH /api/users/[codigo]
+export async function PATCH(request: NextRequest, context: RouteContext) { // Use a interface aqui
   try {
+    const { codigo } = context.params; // Desestruture aqui
     const { comissao } = await request.json();
 
     if (!comissao) {
@@ -32,7 +35,7 @@ export async function PATCH(
       );
     }
 
-    const success = await updateUserCommission(params.codigo, comissao);
+    const success = await updateUserCommission(codigo, comissao); // Use 'codigo'
     if (!success) {
       return NextResponse.json({ error: 'Erro ao atualizar comissão' }, { status: 500 });
     }
@@ -40,4 +43,4 @@ export async function PATCH(
   } catch (error) {
     return NextResponse.json({ error: 'Erro ao atualizar comissão' }, { status: 500 });
   }
-} 
+}
