@@ -4,10 +4,11 @@ import { getUserByCode, updateUserCommission } from '@/lib/db';
 // GET /api/users/[codigo] - Busca usuário por código
 export async function GET(
   request: NextRequest,
-  { params }: { params: { codigo: string } }
+  { params }: { params: Promise<{ codigo: string }> }
 ) {
   try {
-    const user = await getUserByCode(params.codigo);
+    const resolvedParams = await params;
+    const user = await getUserByCode(resolvedParams.codigo);
     if (!user) {
       return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
     }
@@ -20,9 +21,10 @@ export async function GET(
 // PATCH /api/users/[codigo] - Atualiza comissão do usuário
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { codigo: string } }
+  { params }: { params: Promise<{ codigo: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const { comissao } = await request.json();
 
     if (!comissao) {
@@ -32,7 +34,7 @@ export async function PATCH(
       );
     }
 
-    const success = await updateUserCommission(params.codigo, comissao);
+    const success = await updateUserCommission(resolvedParams.codigo, comissao);
     if (!success) {
       return NextResponse.json({ error: 'Erro ao atualizar comissão' }, { status: 500 });
     }

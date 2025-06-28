@@ -28,9 +28,7 @@ const nextConfig = {
     return config;
   },
   // Configuração para ignorar erros de build relacionados a módulos nativos
-  experimental: {
-    serverComponentsExternalPackages: ['odbc', 'oracledb'],
-  },
+  serverExternalPackages: ['odbc', 'oracledb'],
 }
 
 module.exports = nextConfig 

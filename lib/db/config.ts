@@ -9,7 +9,7 @@ dotenv.config({ path: join(__dirname, '../../.env') });
 
 export const dbConfig = {
   odbc: {
-    dsn: process.env.ODBC_DSN || 'dbsiagrin',
+    dsn: process.env.ODBC_DSN || 'OracleProd',
     user: process.env.ORACLE_USER || 'mithra',
     password: process.env.ORACLE_PASSWORD || 'fa781b5a82'
   },
@@ -22,3 +22,11 @@ export const dbConfig = {
     poolIncrement: 1
   }
 }; 
+
+export const sqlParams = {
+  produtos : {
+    empresas: ['1', '3', '6', '8', '9', '13'],
+    grupos: [],
+    subgrupos: []
+  }
+}

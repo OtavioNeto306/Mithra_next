@@ -1,30 +1,134 @@
-# Web order management system
+# Sistema de Gerenciamento de Pedidos Web
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+## 📋 Visão Geral
+Sistema de gerenciamento de pedidos desenvolvido com Next.js, TypeScript e SQLite, oferecendo uma interface moderna e responsiva para gerenciamento de pedidos, usuários e configurações.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/otavioneto306s-projects/v0-web-order-management-system)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/7ReZlrvTuMb)
+## 🚀 Tecnologias Principais
+- Next.js 15.2.4
+- React 19
+- TypeScript
+- SQLite
+- TailwindCSS
+- Radix UI Components
+- React Hook Form
+- Zod (Validação)
 
-## Overview
+## 🛠️ Pré-requisitos
+- Node.js (versão 18 ou superior)
+- npm ou pnpm
+- SQLite3
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## ⚙️ Instalação
 
-## Deployment
+1. Clone o repositório:
+```bash
+git clone [URL_DO_REPOSITÓRIO]
+```
 
-Your project is live at:
+2. Instale as dependências:
+```bash
+npm install
+# ou
+pnpm install
+```
 
-**[https://vercel.com/otavioneto306s-projects/v0-web-order-management-system](https://vercel.com/otavioneto306s-projects/v0-web-order-management-system)**
+3. Configure as variáveis de ambiente:
+Crie um arquivo `.env.local` na raiz do projeto com as seguintes variáveis:
+```env
+DATABASE_URL=file:./usuarios.db3
+NEXTAUTH_SECRET=seu_secret_aqui
+NEXTAUTH_URL=http://localhost:3000
+```
 
-## Build your app
+4. Execute as migrações do banco de dados:
+```bash
+npm run migrate
+# ou
+pnpm migrate
+```
 
-Continue building your app on:
+5. Inicie o servidor de desenvolvimento:
+```bash
+npm run dev
+# ou
+pnpm dev
+```
 
-**[https://v0.dev/chat/projects/7ReZlrvTuMb](https://v0.dev/chat/projects/7ReZlrvTuMb)**
+## 📁 Estrutura do Projeto
 
-## How It Works
+```
+├── app/                    # Diretório principal da aplicação
+│   ├── api/               # Endpoints da API
+│   ├── dashboard/         # Páginas do dashboard
+│   ├── login/            # Páginas de autenticação
+│   └── ...
+├── components/            # Componentes reutilizáveis
+├── lib/                   # Utilitários e configurações
+├── hooks/                # Custom hooks
+├── public/               # Arquivos estáticos
+└── styles/              # Estilos globais
+```
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## 🔒 APIs
+
+### Autenticação
+- `POST /api/users/login`
+  - Autenticação de usuários
+  - Body: `{ email: string, password: string }`
+  - Retorna: Token JWT e dados do usuário
+
+### Usuários
+- `GET /api/users`
+  - Lista todos os usuários
+  - Requer autenticação
+  - Retorna: Array de usuários
+
+- `POST /api/users`
+  - Cria novo usuário
+  - Body: `{ name: string, email: string, password: string, role: string }`
+  - Retorna: Usuário criado
+
+### Vendedores
+- `GET /api/vendedores`
+  - Lista todos os vendedores
+  - Requer autenticação
+  - Retorna: Array de vendedores
+
+### Configurações
+- `GET /api/configuracoes`
+  - Obtém configurações do sistema
+  - Requer autenticação
+  - Retorna: Objeto com configurações
+
+## 🔄 Scripts Disponíveis
+
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run build` - Cria build de produção
+- `npm run start` - Inicia o servidor de produção
+- `npm run lint` - Executa o linter
+- `npm run migrate` - Executa migrações do banco de dados
+
+## 🧪 Testes
+Para executar os testes:
+```bash
+npm run test
+```
+
+## 📦 Deploy
+O projeto está configurado para deploy automático na Vercel.
+
+## 🤝 Contribuição
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📝 Licença
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+## 👥 Autores
+- Seu Nome - Desenvolvimento inicial
+
+## 📞 Suporte
+Para suporte, envie um email para [seu-email@exemplo.com]

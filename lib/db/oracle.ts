@@ -21,6 +21,10 @@ export async function testConnection() {
       await initializePool();
     }
 
+    if (!pool) {
+      throw new Error('Falha ao inicializar o pool de conexões');
+    }
+
     const connection = await pool.getConnection();
     const result = await connection.execute('SELECT 1 FROM DUAL');
     await connection.close();
@@ -38,6 +42,10 @@ export async function executeQuery(sql: string, params: any[] = [], options: ora
   try {
     if (!pool) {
       await initializePool();
+    }
+
+    if (!pool) {
+      throw new Error('Falha ao inicializar o pool de conexões');
     }
 
     const connection = await pool.getConnection();

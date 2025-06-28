@@ -1,0 +1,63 @@
+2025-05-28 16:55 -03:00: ❌ Erro no processamento da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:55 -03:00: ❌ Erro geral no upload da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:55 -03:00: ❌ Erro no processamento da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:55 -03:00: ❌ Erro geral no upload da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:56 -03:00: ❌ Erro no processamento da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:56 -03:00: ❌ Erro geral no upload da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:56 -03:00: ❌ Erro no processamento da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:56 -03:00: ❌ Erro geral no upload da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:56 -03:00: ❌ Erro no processamento da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:56 -03:00: ❌ Erro geral no upload da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:57 -03:00: ❌ Erro no processamento da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:57 -03:00: ❌ Erro geral no upload da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:57 -03:00: ❌ Erro no processamento da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 16:57 -03:00: ❌ Erro geral no upload da imagem: [Error: SQLITE_BUSY: database is locked] {
+  errno: 5,
+  code: 'SQLITE_BUSY'
+}
+2025-05-28 18:46 -03:00: Erro ao carregar imagem: Error: ENOENT: no such file or directory, open 'C:\Projetos\Mithra_next\public\img\0000001.jpg'
+    at async d (C:\Projetos\Mithra_next\.next\server\app\api\img\[filename]\route.js:1:876) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Projetos\\Mithra_next\\public\\img\\0000001.jpg'
+}

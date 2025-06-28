@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, UserCircle, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Eye, EyeOff, Edit3, Save, XCircle, Loader2, Percent } from 'lucide-react'; // Ícone Percent adicionado
 
 interface User {
   USUARIO: string;
@@ -15,7 +15,9 @@ interface User {
   PASSWORD: string;
   UACESSO: string;
   BLOQUEADO: number;
-  COMISSAO: string;
+  COMISSAO: string; // Mantido como string para refletir o original, mas idealmente seria number se possível na API
+  existsInSqlite: boolean; // Novo campo para indicar se o usuário existe no SQLite
+  isCreating?: boolean; // Novo campo para controlar o estado de criação
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -27,6 +29,7 @@ export default function GerenciaPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
   const [editStates, setEditStates] = useState<Record<string, { comissao: string; password: string; showPassword: boolean; loading: boolean; editingPassword: boolean }>>({});
+  const [creatingUsers, setCreatingUsers] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     async function loadUsers() {
@@ -36,7 +39,6 @@ export default function GerenciaPage() {
         if (!response.ok) throw new Error('Erro ao carregar usuários');
         const data = await response.json();
         setUsers(data);
-        // Inicializa os estados de edição
         const initialEditStates: Record<string, { comissao: string; password: string; showPassword: boolean; loading: boolean; editingPassword: boolean }> = {};
         data.forEach((user: User) => {
           initialEditStates[user.USUARIO] = {
@@ -115,6 +117,20 @@ export default function GerenciaPage() {
     }));
   };
 
+  const handleStartCreate = (codigo: string) => {
+    setCreatingUsers(prev => ({ ...prev, [codigo]: true }));
+    setEditStates((prev) => ({
+      ...prev,
+      [codigo]: {
+        ...prev[codigo],
+        editingPassword: true,
+        password: '',
+        showPassword: false,
+        comissao: '0.00'
+      },
+    }));
+  };
+
   const handleCancelEditPassword = (codigo: string) => {
     setEditStates((prev) => ({
       ...prev,
@@ -125,34 +141,41 @@ export default function GerenciaPage() {
         showPassword: false,
       },
     }));
+    setCreatingUsers(prev => ({ ...prev, [codigo]: false }));
   };
 
   const handleUpdate = async (codigo: string) => {
-    setEditStates((prev) => ({
-      ...prev,
-      [codigo]: {
-        ...prev[codigo],
-        loading: true,
-      },
-    }));
+    setEditStates((prev) => ({ ...prev, [codigo]: { ...prev[codigo], loading: true } }));
     try {
       const { comissao, password, editingPassword } = editStates[codigo];
-      const body: any = { comissao };
+      const user = users.find(u => u.USUARIO === codigo);
+      const body: any = { comissao: comissao ? parseFloat(comissao).toFixed(2) : "0.00" };
+
       if (editingPassword && password) {
         body.password = password;
       }
+
+      // Se estiver criando um novo usuário, incluir o nome
+      if (!user?.existsInSqlite) {
+        body.nome = user?.NOME;
+      }
+
       const response = await fetch(`/api/users?codigo=${codigo}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      if (!response.ok) throw new Error('Erro ao atualizar dados');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Erro ao atualizar dados do usuário.' }));
+        throw new Error(errorData.message || 'Erro ao atualizar dados');
+      }
       toast({
-        title: 'Sucesso',
-        description: 'Dados atualizados com sucesso',
+        title: 'Sucesso!',
+        description: user?.existsInSqlite ? 'Dados do usuário atualizados.' : 'Usuário criado com sucesso.',
+        variant: 'default',
+        className: "bg-green-500 dark:bg-green-700 text-white"
       });
-      setUsers((prev) => prev.map((u) => u.USUARIO === codigo ? { ...u, COMISSAO: comissao } : u));
-      // Após salvar, esconde e limpa o campo de senha
+      setUsers((prevUsers) => prevUsers.map((u) => u.USUARIO === codigo ? { ...u, COMISSAO: body.comissao, existsInSqlite: true } : u));
       setEditStates((prev) => ({
         ...prev,
         [codigo]: {
@@ -163,129 +186,259 @@ export default function GerenciaPage() {
           showPassword: false,
         },
       }));
-    } catch (error) {
+      setCreatingUsers(prev => ({ ...prev, [codigo]: false }));
+    } catch (error: any) {
       toast({
-        title: 'Erro',
-        description: 'Não foi possível atualizar os dados',
+        title: 'Erro ao Atualizar',
+        description: error.message || 'Não foi possível atualizar os dados. Tente novamente.',
         variant: 'destructive',
       });
-      setEditStates((prev) => ({
-        ...prev,
-        [codigo]: {
-          ...prev[codigo],
-          loading: false,
-        },
-      }));
+      setEditStates((prev) => ({ ...prev, [codigo]: { ...prev[codigo], loading: false } }));
     }
   };
 
+  // Formata visualmente o valor da comissão para exibição, mas o estado mantém o valor bruto
+  const formatComissaoForDisplay = (value: string) => {
+    if (!value) return '';
+    const num = parseFloat(value);
+    return isNaN(num) ? value : num.toFixed(2); // Mantém duas casas decimais
+  };
+
+
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gerência de Comissões</h1>
-          <p className="text-muted-foreground">Edite comissão e senha diretamente na lista</p>
+      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8"> {/* Melhorando o container principal */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Gerência de Usuários</h1>
+          <p className="mt-2 text-lg text-muted-foreground">Edite comissões e senhas diretamente na lista abaixo.</p>
         </div>
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle>Lista de Usuários</CardTitle>
-            <CardDescription>Edite comissão (%) e senha diretamente na tabela</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="mb-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Buscar por nome ou código do usuário..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+
+        <Card className="shadow-xl border-gray-200 dark:border-gray-700 rounded-lg">
+          <CardHeader className="pb-4 border-b border-gray-200 dark:border-gray-700 px-6 py-5">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center">
+                <div>
+                    <CardTitle className="text-2xl font-semibold text-gray-800 dark:text-gray-200">Lista de Usuários</CardTitle>
+                    <CardDescription className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Ajuste a comissão (%) e altere senhas conforme necessário.
+                    </CardDescription>
+                </div>
+                <div className="mt-4 sm:mt-0 relative w-full sm:w-72">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
+                    <Input
+                        type="text"
+                        placeholder="Buscar por nome ou código..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-12 w-full bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:focus:ring-offset-gray-900 rounded-md h-11"
+                    />
+                </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full border text-sm">
-                <thead>
-                  <tr className="bg-muted/50">
-                    <th className="px-4 py-2 text-left">Código</th>
-                    <th className="px-4 py-2 text-left">Nome</th>
-                    <th className="px-4 py-2 text-left">Comissão (%)</th>
-                    <th className="px-4 py-2 text-left">Senha</th>
-                    <th className="px-4 py-2 text-center">Ações</th>
+          </CardHeader>
+          <CardContent className="pt-0"> {/* Removido pt-6 para tabela começar logo abaixo do header (se preferir) ou ajuste conforme necessário */}
+            <div className="overflow-x-auto rounded-b-lg"> {/* Aplicando rounded no wrapper da tabela também */}
+              <table className="min-w-full text-sm">
+                <thead className="bg-gray-100 dark:bg-gray-800">
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="px-6 py-4 text-left font-semibold text-gray-600 dark:text-gray-300 tracking-wider">Código</th>
+                    <th className="px-6 py-4 text-left font-semibold text-gray-600 dark:text-gray-300 tracking-wider">Nome</th>
+                    <th className="px-6 py-4 text-left font-semibold text-gray-600 dark:text-gray-300 tracking-wider">Comissão</th>
+                    <th className="px-6 py-4 text-left font-semibold text-gray-600 dark:text-gray-300 tracking-wider">Senha</th>
+                    <th className="px-6 py-4 text-center font-semibold text-gray-600 dark:text-gray-300 tracking-wider">Ações</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800/50">
                   {loading ? (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-muted-foreground">Carregando usuários...</td>
+                      <td colSpan={5} className="text-center py-16 text-gray-500 dark:text-gray-400">
+                        <Loader2 className="h-8 w-8 animate-spin inline mr-3" /> Carregando usuários...
+                      </td>
                     </tr>
                   ) : currentUsersOnPage.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-muted-foreground">Nenhum usuário encontrado</td>
+                      <td colSpan={5} className="text-center py-16 text-gray-500 dark:text-gray-400">
+                        {searchTerm ? 'Nenhum usuário encontrado com o termo buscado.' : 'Nenhum usuário cadastrado.'}
+                      </td>
                     </tr>
                   ) : (
                     currentUsersOnPage.map((user) => (
-                      <tr key={user.USUARIO} className="border-b">
-                        <td className="px-4 py-2 font-medium">{user.USUARIO}</td>
-                        <td className="px-4 py-2">{user.NOME}</td>
-                        <td className="px-4 py-2">
-                          <Input
-                            type="text"
-                            value={editStates[user.USUARIO]?.comissao ?? ''}
-                            onChange={(e) => handleFieldChange(user.USUARIO, 'comissao', e.target.value)}
-                            className="w-24"
-                          />
+                      <tr key={user.USUARIO} className="hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors duration-150">
+                        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-800 dark:text-gray-200">{user.USUARIO}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{user.NOME}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={editStates[user.USUARIO]?.comissao ?? ''}
+                              onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                                      handleFieldChange(user.USUARIO, 'comissao', val)
+                                  }
+                              }}
+                              onBlur={(e) => {
+                                const formattedValue = formatComissaoForDisplay(e.target.value);
+                                handleFieldChange(user.USUARIO, 'comissao', formattedValue);
+                              }}
+                              className="w-24 h-9 text-right pr-2 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary"
+                              disabled={editStates[user.USUARIO]?.loading || !user.existsInSqlite}
+                              placeholder="0.00"
+                            />
+                            <Percent className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                          </div>
                         </td>
-                        <td className="px-4 py-2">
-                          {editStates[user.USUARIO]?.editingPassword ? (
-                            <div className="relative flex items-center gap-2">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {user.existsInSqlite ? (
+                            editStates[user.USUARIO]?.editingPassword ? (
+                              <div className="relative flex items-center max-w-xs">
+                                <Input
+                                  type={editStates[user.USUARIO]?.showPassword ? 'text' : 'password'}
+                                  value={editStates[user.USUARIO]?.password ?? ''}
+                                  onChange={(e) => handleFieldChange(user.USUARIO, 'password', e.target.value)}
+                                  className="h-9 pr-20 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary"
+                                  placeholder="Nova senha"
+                                  disabled={editStates[user.USUARIO]?.loading}
+                                  aria-label="Campo para nova senha"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 h-8 w-8"
+                                  onClick={() => handleToggleShowPassword(user.USUARIO)}
+                                  tabIndex={-1}
+                                  title={editStates[user.USUARIO]?.showPassword ? "Ocultar senha" : "Mostrar senha"}
+                                  disabled={editStates[user.USUARIO]?.loading}
+                                >
+                                  {editStates[user.USUARIO]?.showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500 h-8 w-8"
+                                  onClick={() => handleCancelEditPassword(user.USUARIO)}
+                                  tabIndex={-1}
+                                  title="Cancelar alteração de senha"
+                                  disabled={editStates[user.USUARIO]?.loading}
+                                >
+                                  <XCircle size={18} />
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="flex items-center gap-2 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 h-9"
+                                onClick={() => handleEditPassword(user.USUARIO)}
+                                disabled={editStates[user.USUARIO]?.loading}
+                                title="Clique para alterar a senha deste usuário"
+                              >
+                                <Edit3 size={16} /> Alterar Senha
+                              </Button>
+                            )
+                          ) : creatingUsers[user.USUARIO] ? (
+                            <div className="relative flex items-center max-w-xs">
                               <Input
                                 type={editStates[user.USUARIO]?.showPassword ? 'text' : 'password'}
                                 value={editStates[user.USUARIO]?.password ?? ''}
                                 onChange={(e) => handleFieldChange(user.USUARIO, 'password', e.target.value)}
-                                className="pr-10"
-                                placeholder="Nova senha"
+                                className="h-9 pr-20 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary"
+                                placeholder="Digite a senha inicial"
+                                disabled={editStates[user.USUARIO]?.loading}
+                                aria-label="Campo para senha inicial"
                               />
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="absolute right-8 top-1/2 -translate-y-1/2"
+                                className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 h-8 w-8"
                                 onClick={() => handleToggleShowPassword(user.USUARIO)}
                                 tabIndex={-1}
+                                title={editStates[user.USUARIO]?.showPassword ? "Ocultar senha" : "Mostrar senha"}
+                                disabled={editStates[user.USUARIO]?.loading}
                               >
-                                {editStates[user.USUARIO]?.showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                {editStates[user.USUARIO]?.showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                               </Button>
                               <Button
                                 type="button"
-                                variant="outline"
+                                variant="ghost"
                                 size="icon"
-                                className="absolute right-1 top-1/2 -translate-y-1/2"
+                                className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500 h-8 w-8"
                                 onClick={() => handleCancelEditPassword(user.USUARIO)}
                                 tabIndex={-1}
+                                title="Cancelar criação de usuário"
+                                disabled={editStates[user.USUARIO]?.loading}
                               >
-                                X
+                                <XCircle size={18} />
                               </Button>
                             </div>
                           ) : (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditPassword(user.USUARIO)}
-                            >
-                              Alterar senha
-                            </Button>
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-2 text-center">
-                          <Button
-                            onClick={() => handleUpdate(user.USUARIO)}
-                            disabled={editStates[user.USUARIO]?.loading}
-                          >
-                            {editStates[user.USUARIO]?.loading ? 'Salvando...' : 'Atualizar'}
-                          </Button>
+                        <td className="px-6 py-4 text-center">
+                          {!user.existsInSqlite ? (
+                            creatingUsers[user.USUARIO] ? (
+                              <Button
+                                onClick={() => handleUpdate(user.USUARIO)}
+                                disabled={!editStates[user.USUARIO]?.password}
+                                size="sm"
+                                className="flex items-center justify-center gap-2 w-32 h-9 transition-all duration-150 ease-in-out group bg-green-600 hover:bg-green-700 text-white"
+                                title="Confirmar criação do usuário"
+                              >
+                                {editStates[user.USUARIO]?.loading ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Criando...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Save className="h-4 w-4" />
+                                    Confirmar
+                                  </>
+                                )}
+                              </Button>
+                            ) : (
+                              <Button
+                                onClick={() => handleStartCreate(user.USUARIO)}
+                                size="sm"
+                                className="flex items-center justify-center gap-2 w-32 h-9 transition-all duration-150 ease-in-out group bg-green-600 hover:bg-green-700 text-white"
+                                title="Criar usuário no sistema"
+                              >
+                                <Save className="h-4 w-4" />
+                                Criar Usuário
+                              </Button>
+                            )
+                          ) : (
+                            <Button
+                              onClick={() => handleUpdate(user.USUARIO)}
+                              disabled={
+                                editStates[user.USUARIO]?.loading ||
+                                (
+                                  !editStates[user.USUARIO]?.editingPassword &&
+                                  (editStates[user.USUARIO]?.comissao === (users.find(u => u.USUARIO === user.USUARIO)?.COMISSAO || '')) &&
+                                  !editStates[user.USUARIO]?.password
+                                )
+                              }
+                              size="sm"
+                              className="flex items-center justify-center gap-2 w-32 h-9 transition-all duration-150 ease-in-out group"
+                              title={editStates[user.USUARIO]?.loading ? 'Salvando alterações...' : 'Salvar alterações'}
+                            >
+                              {editStates[user.USUARIO]?.loading ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  Salvando...
+                                </>
+                              ) : (
+                                <>
+                                  <Save className="h-4 w-4 transition-transform duration-150 ease-in-out group-hover:scale-110" />
+                                  Atualizar
+                                </>
+                              )}
+                            </Button>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -294,9 +447,9 @@ export default function GerenciaPage() {
               </table>
             </div>
             {!loading && filteredUsers.length > 0 && (
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Mostrando {indexOfFirstItem + 1} a {Math.min(indexOfLastItem, filteredUsers.length)} de {filteredUsers.length} usuários
+              <div className="mt-6 px-6 pb-5 flex flex-col sm:flex-row items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 sm:mb-0">
+                  Mostrando <span className="font-medium">{Math.min(indexOfFirstItem + 1, filteredUsers.length)}</span> a <span className="font-medium">{Math.min(indexOfLastItem, filteredUsers.length)}</span> de <span className="font-medium">{filteredUsers.length}</span> usuários
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -304,21 +457,30 @@ export default function GerenciaPage() {
                     size="icon"
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
+                    className="text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 h-9 w-9"
+                    title="Página anterior"
+                    aria-label="Página anterior"
                   >
-                    <ChevronLeft className="h-4 w-4" />
-                    <span className="sr-only">Página anterior</span>
+                    <ChevronLeft className="h-5 w-5" />
                   </Button>
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={handleNextPage}
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage === totalPages || totalPages === 0} // Adicionado totalPages === 0
+                    className="text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 h-9 w-9"
+                    title="Próxima página"
+                    aria-label="Próxima página"
                   >
-                    <ChevronRight className="h-4 w-4" />
-                    <span className="sr-only">Próxima página</span>
+                    <ChevronRight className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
+            )}
+             {!loading && filteredUsers.length === 0 && searchTerm && (
+                <div className="mt-6 px-6 pb-5 text-center text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 pt-4">
+                    Nenhum usuário encontrado para "{searchTerm}". Tente uma busca diferente.
+                </div>
             )}
           </CardContent>
         </Card>

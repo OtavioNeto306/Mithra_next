@@ -178,6 +178,17 @@ export default function PedidoDetalhesPage() {
   useEffect(() => {
     // Simulando carregamento de dados
     const timer = setTimeout(() => {
+      if (!params || !params.id) {
+        toast({
+          title: "Erro",
+          description: "Parâmetros inválidos.",
+          variant: "destructive",
+        })
+        router.push("/pedidos")
+        setLoading(false)
+        return
+      }
+
       const id = Array.isArray(params.id) ? params.id[0] : params.id
       const pedidoEncontrado = pedidosDetalhesMock[id]
 
@@ -196,7 +207,7 @@ export default function PedidoDetalhesPage() {
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [params.id, router, toast])
+  }, [params, router, toast])
 
   // Formatar data para exibição
   const formatarData = (dataString: string) => {

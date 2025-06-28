@@ -1,0 +1,159 @@
+2025-05-29 08:57 -03:00: Executando query: 
+      SELECT COUNT(*) as total
+      FROM (
+        SELECT DISTINCT P.CODI_PSV, P.DESC_PSV
+        FROM PRODSERV P
+        INNER JOIN DADOSPRO D ON P.CODI_PSV = D.CODI_PSV
+        WHERE P.PRSE_PSV = 'P' AND P.SITU_PSV = 'A'
+        
+      )
+    
+2025-05-29 08:57 -03:00: Parâmetros: []
+2025-05-29 08:57 -03:00: Resultado da query: [
+  { TOTAL: 7261 },
+  statement: '\n' +
+    '      SELECT COUNT(*) as total\n' +
+    '      FROM (\n' +
+    '        SELECT DISTINCT P.CODI_PSV, P.DESC_PSV\n' +
+    '        FROM PRODSERV P\n' +
+    '        INNER JOIN DADOSPRO D ON P.CODI_PSV = D.CODI_PSV\n' +
+    "        WHERE P.PRSE_PSV = 'P' AND P.SITU_PSV = 'A'\n" +
+    '        \n' +
+    '      )\n' +
+    '    ',
+  parameters: [],
+  return: undefined,
+  count: -1,
+  columns: [
+    {
+      name: 'TOTAL',
+      dataType: 6,
+      dataTypeName: 'SQL_FLOAT',
+      columnSize: 38,
+      decimalDigits: 0,
+      nullable: true
+    }
+  ]
+]
+2025-05-29 08:57 -03:00: Total de produtos: 7261 Total de páginas: 146
+2025-05-29 08:57 -03:00: Página: 1 Limite: 50 Start: 1 End: 50
+2025-05-29 08:57 -03:00: SQL executado: 
+      SELECT CODI_PSV, DESC_PSV FROM (
+        SELECT CODI_PSV, DESC_PSV, ROW_NUMBER() OVER (ORDER BY CODI_PSV) AS rn
+        FROM (
+          SELECT DISTINCT P.CODI_PSV, P.DESC_PSV
+          FROM PRODSERV P
+          INNER JOIN DADOSPRO D ON P.CODI_PSV = D.CODI_PSV
+          WHERE P.PRSE_PSV = 'P' AND P.SITU_PSV = 'A'
+          
+        )
+      )
+      WHERE rn BETWEEN 1 AND 50
+    
+2025-05-29 08:57 -03:00: Executando query: 
+      SELECT CODI_PSV, DESC_PSV FROM (
+        SELECT CODI_PSV, DESC_PSV, ROW_NUMBER() OVER (ORDER BY CODI_PSV) AS rn
+        FROM (
+          SELECT DISTINCT P.CODI_PSV, P.DESC_PSV
+          FROM PRODSERV P
+          INNER JOIN DADOSPRO D ON P.CODI_PSV = D.CODI_PSV
+          WHERE P.PRSE_PSV = 'P' AND P.SITU_PSV = 'A'
+          
+        )
+      )
+      WHERE rn BETWEEN 1 AND 50
+    
+2025-05-29 08:57 -03:00: Parâmetros: []
+2025-05-29 08:57 -03:00: Resultado da query: [
+  { CODI_PSV: '0000001', DESC_PSV: 'COLOSSO PULV 1000ML OURO FINO' },
+  { CODI_PSV: '0000002', DESC_PSV: 'COLOSSO PULV 100ML OURO FINO' },
+  { CODI_PSV: '0000004', DESC_PSV: 'FORTEMIL 500ML OURO FINO' },
+  { CODI_PSV: '0000005', DESC_PSV: 'COLOSSO PULV 250ML OURO FINO' },
+  { CODI_PSV: '0000006', DESC_PSV: 'COLOSSO PULV 25ML OURO FINO' },
+  { CODI_PSV: '0000016', DESC_PSV: 'BOLFO  1KG ELANCO' },
+  { CODI_PSV: '0000017', DESC_PSV: 'BOLFO 200GR ELANCO' },
+  { CODI_PSV: '0000022', DESC_PSV: 'CALFON ORAL 350ML ELANCO' },
+  { CODI_PSV: '0000023', DESC_PSV: 'CATOSAL B-12 100ML ELANCO' },
+  {
+    CODI_PSV: '0000025',
+    DESC_PSV: 'DRONTAL PLUS CX C/4 COMP 1P/10KG BAYER*'
+  },
+  { CODI_PSV: '0000026', DESC_PSV: 'DRONTAL PUPPY 20ML BAYER*' },
+  { CODI_PSV: '0000028', DESC_PSV: 'FLUNAMINE 50ML ELANCO' },
+  { CODI_PSV: '0000030', DESC_PSV: 'KINETOMAX 20ML ELANCO' },
+  { CODI_PSV: '0000031', DESC_PSV: 'KINETOMAX 50ML ELANCO' },
+  { CODI_PSV: '0000040', DESC_PSV: 'TANIDIL 200GR ELANCO' },
+  { CODI_PSV: '0000041', DESC_PSV: 'TANIDIL 2KG ELANCO' },
+  { CODI_PSV: '0000051', DESC_PSV: 'ADETHOR   50ML FABIANI' },
+  { CODI_PSV: '0000058', DESC_PSV: 'ALTEC 50ML FABIANI' },
+  { CODI_PSV: '0000059', DESC_PSV: 'ALTEC PASTA P/ EQUINOS FABIANI' },
+  { CODI_PSV: '0000062', DESC_PSV: 'CAPRINOFOS 25KG TORTUGA' },
+  { CODI_PSV: '0000064', DESC_PSV: 'COEQUI PLUS TQ 25KG TORTUGA' },
+  { CODI_PSV: '0000066', DESC_PSV: 'ECTIC BLISTER 10ML FABIANI' },
+  { CODI_PSV: '0000069', DESC_PSV: 'ENROFLOXACINA 10%   50ML FABIANI' },
+  { CODI_PSV: '0000072', DESC_PSV: 'FERDEX B12 50ML FABIANI' },
+  { CODI_PSV: '0000073', DESC_PSV: 'FERRODEX   10ML FABIANI' },
+  { CODI_PSV: '0000074', DESC_PSV: 'FERRODEX 250ML FABIANI' },
+  { CODI_PSV: '0000075', DESC_PSV: 'FERRODEX   50ML FABIANI' },
+  { CODI_PSV: '0000077', DESC_PSV: 'FOSBOVI ENGORDA 30KG TORTUGA' },
+  { CODI_PSV: '0000078', DESC_PSV: 'FOSBOVI PRONTO 30KG TORTUGA' },
+  { CODI_PSV: '0000083', DESC_PSV: 'FOSBOVI-20 TQ 30KG TORTUGA' },
+  { CODI_PSV: '0000098', DESC_PSV: 'SERINGA DESCARTAVEL 60ML' },
+  { CODI_PSV: '0000100', DESC_PSV: 'FOSBOVI-30 TQ 25KG TORTUGA' },
+  { CODI_PSV: '0000101', DESC_PSV: 'FOSBOVI-40 TQ 25KG TORTUGA' },
+  { CODI_PSV: '0000105', DESC_PSV: 'FOSCROMO SECA 30KG TORTUGA' },
+  { CODI_PSV: '0000116', DESC_PSV: 'NUCLEO ENGORDA 25KG TORTUGA' },
+  { CODI_PSV: '0000119', DESC_PSV: 'OVINOFOS 25KG TORTUGA' },
+  { CODI_PSV: '0000122', DESC_PSV: 'PARACURSO 10ML FABIANI' },
+  { CODI_PSV: '0000125', DESC_PSV: 'PROLACTON 10ML FABIANI' },
+  { CODI_PSV: '0000127', DESC_PSV: 'PROVERME 28G FABIANI' },
+  { CODI_PSV: '0000128', DESC_PSV: 'TORMICINA 100 10ML FABIANI' },
+  { CODI_PSV: '0000129', DESC_PSV: 'TORMICINA 100 50ML FABIANI' },
+  { CODI_PSV: '0000131', DESC_PSV: 'TORMICINA L A 50ML FABIANI' },
+  { CODI_PSV: '0000132', DESC_PSV: 'VITAGOLD POTN 1000ML FABIANI' },
+  { CODI_PSV: '0000133', DESC_PSV: 'VITAGOLD POTN 20ML FABIANI' },
+  { CODI_PSV: '0000134', DESC_PSV: 'VITAGOLD POTN 250ML FABIANI' },
+  { CODI_PSV: '0000135', DESC_PSV: 'VITAGOLD POTN 50ML FABIANI' },
+  { CODI_PSV: '0000143', DESC_PSV: 'FOSBOVI-15 TQ 30KG TORTUGA' },
+  { CODI_PSV: '0000144', DESC_PSV: 'FOSFATO BICALCICO 50KG' },
+  {
+    CODI_PSV: '0000148',
+    DESC_PSV: 'SEM MILHO BM 3061 18,10KG BIOMATRIX'
+  },
+  { CODI_PSV: '0000175', DESC_PSV: 'SULTRINJEX INJ 50ML BIOVET' },
+  statement: '\n' +
+    '      SELECT CODI_PSV, DESC_PSV FROM (\n' +
+    '        SELECT CODI_PSV, DESC_PSV, ROW_NUMBER() OVER (ORDER BY CODI_PSV) AS rn\n' +
+    '        FROM (\n' +
+    '          SELECT DISTINCT P.CODI_PSV, P.DESC_PSV\n' +
+    '          FROM PRODSERV P\n' +
+    '          INNER JOIN DADOSPRO D ON P.CODI_PSV = D.CODI_PSV\n' +
+    "          WHERE P.PRSE_PSV = 'P' AND P.SITU_PSV = 'A'\n" +
+    '          \n' +
+    '        )\n' +
+    '      )\n' +
+    '      WHERE rn BETWEEN 1 AND 50\n' +
+    '    ',
+  parameters: [],
+  return: undefined,
+  count: -1,
+  columns: [
+    {
+      name: 'CODI_PSV',
+      dataType: 12,
+      dataTypeName: 'SQL_VARCHAR',
+      columnSize: 15,
+      decimalDigits: 0,
+      nullable: false
+    },
+    {
+      name: 'DESC_PSV',
+      dataType: 12,
+      dataTypeName: 'SQL_VARCHAR',
+      columnSize: 120,
+      decimalDigits: 0,
+      nullable: true
+    }
+  ]
+]
+2025-05-29 08:57 -03:00: Quantidade de produtos retornados: 50
