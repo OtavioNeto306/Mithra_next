@@ -18,16 +18,54 @@ const config: MySQLConfig = {
   database: process.env.MYSQL_DATABASE || 'database_name'
 };
 
-// Pool de conexões para melhor performance
+// Pool de conexões otimizado para produção
 let pool: mysql.Pool | null = null;
 
 function createPool(): mysql.Pool {
   if (!pool) {
     pool = mysql.createPool({
       ...config,
+      // 🚀 CONFIGURAÇÕES OTIMIZADAS PARA PRODUÇÃO
       waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
+      connectionLimit: 50,              // ✅ Aumentado de 10 para 50
+      queueLimit: 100,                 // ✅ Limitado para evitar memory leak
+      acquireTimeout: 60000,           // ✅ 1 minuto timeout para conexões
+      timeout: 60000,                  // ✅ Query timeout
+      reconnect: true,                 // ✅ Auto-reconnect
+      idleTimeout: 300000,             // ✅ Fechar conexões idle após 5min
+      
+      // Configurações adicionais de performance
+      supportBigNumbers: true,
+      bigNumberStrings: true,
+      dateStrings: false,
+      multipleStatements: false,
+      
+      // Configurações de SSL e segurança
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
+
+    // 📊 Event handlers para monitoramento
+    pool.on('connection', (connection) => {
+      console.log(`✅ Nova conexão MySQL estabelecida: ${connection.threadId}`);
+    });
+
+    pool.on('error', (err) => {
+      console.error('❌ Erro no pool MySQL:', err);
+      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+        console.log('🔄 Reconectando ao MySQL...');
+      }
+    });
+
+    pool.on('acquire', (connection) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🔗 Conexão adquirida: ${connection.threadId}`);
+      }
+    });
+
+    pool.on('release', (connection) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🔓 Conexão liberada: ${connection.threadId}`);
+      }
     });
   }
   return pool;
