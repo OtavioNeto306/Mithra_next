@@ -9,89 +9,33 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
-import { Eye, FileDown, Filter, Plus, Search } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Eye, FileDown, Filter, Plus, Search, RefreshCw, AlertCircle } from "lucide-react"
 import Link from "next/link"
-
-// Tipo para os pedidos
-interface Pedido {
-  id: string
-  codigo: string
-  cliente: string
-  data: string
-  valor: number
-  status: "pendente" | "faturado" | "cancelado" | "em processamento"
-}
-
-// Dados mockados para os pedidos
-const pedidosMock: Pedido[] = [
-  {
-    id: "1",
-    codigo: "PED001",
-    cliente: "Empresa ABC Ltda",
-    data: "2025-05-15",
-    valor: 2500.0,
-    status: "faturado",
-  },
-  {
-    id: "2",
-    codigo: "PED002",
-    cliente: "Comércio XYZ",
-    data: "2025-05-16",
-    valor: 1800.0,
-    status: "pendente",
-  },
-  {
-    id: "3",
-    codigo: "PED003",
-    cliente: "Indústria 123",
-    data: "2025-05-14",
-    valor: 3200.0,
-    status: "em processamento",
-  },
-  {
-    id: "4",
-    codigo: "PED004",
-    cliente: "Distribuidora Fast",
-    data: "2025-05-10",
-    valor: 950.0,
-    status: "cancelado",
-  },
-  {
-    id: "5",
-    codigo: "PED005",
-    cliente: "Supermercado Big",
-    data: "2025-05-17",
-    valor: 4200.0,
-    status: "pendente",
-  },
-  {
-    id: "6",
-    codigo: "PED006",
-    cliente: "Farmácia Saúde",
-    data: "2025-05-12",
-    valor: 1250.0,
-    status: "faturado",
-  },
-  {
-    id: "7",
-    codigo: "PED007",
-    cliente: "Loja de Roupas Fashion",
-    data: "2025-05-13",
-    valor: 3600.0,
-    status: "faturado",
-  },
-]
+import { usePedidos } from "@/hooks/usePedidos"
 
 export default function PedidosPage() {
-  const [pedidos, setPedidos] = useState<Pedido[]>(pedidosMock)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("todos")
   const { toast } = useToast()
+  
+  const { 
+    pedidos, 
+    loading, 
+    error, 
+    pagination, 
+    fetchPedidos, 
+    refetch 
+  } = usePedidos()
 
   // Formatar data para exibição
   const formatarData = (dataString: string) => {
-    const data = new Date(dataString)
-    return data.toLocaleDateString("pt-BR")
+    try {
+      const data = new Date(dataString)
+      return data.toLocaleDateString("pt-BR")
+    } catch {
+      return dataString
+    }
   }
 
   // Formatar valor para exibição
@@ -102,16 +46,24 @@ export default function PedidosPage() {
     })
   }
 
-  // Filtrar pedidos com base no termo de pesquisa e filtro de status
-  const pedidosFiltrados = pedidos.filter((pedido) => {
-    const matchesSearch =
-      pedido.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pedido.cliente.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtrar pedidos - agora aplicando filtros via API
+  const handleSearch = async (search: string) => {
+    setSearchTerm(search)
+    await fetchPedidos({
+      search: search || undefined,
+      status: statusFilter !== "todos" ? statusFilter : undefined,
+      page: 1,
+    })
+  }
 
-    const matchesStatus = statusFilter === "todos" || pedido.status === statusFilter
-
-    return matchesSearch && matchesStatus
-  })
+  const handleStatusFilter = async (status: string) => {
+    setStatusFilter(status)
+    await fetchPedidos({
+      search: searchTerm || undefined,
+      status: status !== "todos" ? status : undefined,
+      page: 1,
+    })
+  }
 
   // Cor do badge de acordo com o status
   const getStatusColor = (status: string) => {
@@ -137,15 +89,30 @@ export default function PedidosPage() {
     })
   }
 
+  // Recarregar dados
+  const handleRefresh = async () => {
+    await refetch()
+    toast({
+      title: "Dados atualizados",
+      description: "A lista de pedidos foi atualizada com sucesso.",
+    })
+  }
+
   return (
     <MainLayout>
       <div className="space-y-6">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Pedidos</h1>
-            <p className="text-muted-foreground">Gerencie todos os pedidos do sistema</p>
+            <p className="text-muted-foreground">
+              Gerencie todos os pedidos do sistema • {pagination.total} pedidos encontrados
+            </p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              Atualizar
+            </Button>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
               Novo Pedido
@@ -157,6 +124,15 @@ export default function PedidosPage() {
           </div>
         </div>
 
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Erro ao carregar pedidos: {error}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle>Lista de Pedidos</CardTitle>
@@ -166,15 +142,20 @@ export default function PedidosPage() {
               <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por código ou cliente..."
+                  placeholder="Buscar por número ou cliente..."
                   className="pl-8"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  disabled={loading}
                 />
               </div>
               <div className="flex w-full items-center gap-2 sm:w-auto">
                 <Filter className="h-4 w-4 text-muted-foreground" />
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select 
+                  value={statusFilter} 
+                  onValueChange={handleStatusFilter}
+                  disabled={loading}
+                >
                   <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="Filtrar por status" />
                   </SelectTrigger>
@@ -195,26 +176,55 @@ export default function PedidosPage() {
                   <TableRow>
                     <TableHead>Código</TableHead>
                     <TableHead>Cliente</TableHead>
-                    <TableHead>Data</TableHead>
+                    <TableHead>Forma Pagamento</TableHead>
+                    <TableHead>Data Emissão</TableHead>
                     <TableHead>Valor</TableHead>
+                    <TableHead>Tipo</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {pedidosFiltrados.length === 0 ? (
+                  {loading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="h-24 text-center">
-                        Nenhum pedido encontrado.
+                      <TableCell colSpan={8} className="h-24 text-center">
+                        <div className="flex items-center justify-center">
+                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                          Carregando pedidos...
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : pedidos.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="h-24 text-center">
+                        {error ? "Erro ao carregar os dados" : "Nenhum pedido encontrado."}
                       </TableCell>
                     </TableRow>
                   ) : (
-                    pedidosFiltrados.map((pedido) => (
-                      <TableRow key={pedido.id}>
-                        <TableCell className="font-medium">{pedido.codigo}</TableCell>
-                        <TableCell>{pedido.cliente}</TableCell>
-                        <TableCell>{formatarData(pedido.data)}</TableCell>
+                    pedidos.map((pedido) => (
+                      <TableRow key={pedido.chave}>
+                        <TableCell className="font-medium">{pedido.numero}</TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{pedido.cliente.nome}</div>
+                            <div className="text-sm text-muted-foreground">
+                              Cód: {pedido.cliente.codigo}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{pedido.formaPagamento.descricao}</div>
+                            <div className="text-sm text-muted-foreground">
+                              Cód: {pedido.formaPagamento.codigo}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{formatarData(pedido.emissao)}</TableCell>
                         <TableCell>{formatarValor(pedido.valor)}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{pedido.tipo}</Badge>
+                        </TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(pedido.status)}>
                             {pedido.status.charAt(0).toUpperCase() + pedido.status.slice(1)}
@@ -222,7 +232,7 @@ export default function PedidosPage() {
                         </TableCell>
                         <TableCell className="text-right">
                           <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/pedidos/${pedido.id}`}>
+                            <Link href={`/pedidos/${pedido.chave}`}>
                               <Eye className="h-4 w-4" />
                               <span className="sr-only">Ver detalhes</span>
                             </Link>
@@ -234,6 +244,42 @@ export default function PedidosPage() {
                 </TableBody>
               </Table>
             </div>
+
+            {/* Paginação */}
+            {pagination.totalPages > 1 && (
+              <div className="mt-4 flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  Página {pagination.page} de {pagination.totalPages} 
+                  • {pagination.total} pedidos no total
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fetchPedidos({ 
+                      page: pagination.page - 1,
+                      search: searchTerm || undefined,
+                      status: statusFilter !== "todos" ? statusFilter : undefined,
+                    })}
+                    disabled={loading || pagination.page <= 1}
+                  >
+                    Anterior
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fetchPedidos({ 
+                      page: pagination.page + 1,
+                      search: searchTerm || undefined,
+                      status: statusFilter !== "todos" ? statusFilter : undefined,
+                    })}
+                    disabled={loading || pagination.page >= pagination.totalPages}
+                  >
+                    Próxima
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
