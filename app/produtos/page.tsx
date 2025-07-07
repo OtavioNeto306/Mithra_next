@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import { Search, Image as ImageIcon, Check, Upload, Link, Trash2 } from "lucide-react";
+import { Search, Image as ImageIcon, Check, Upload, Link, Trash2, FileText } from "lucide-react";
 import { MainLayout } from "@/components/main-layout";
+import { FichaTecnicaModal } from "@/components/ficha-tecnica-modal";
 
 interface Produto {
   CODI_PSV: string;
@@ -33,6 +34,7 @@ export default function ProdutosPage() {
   const [busca, setBusca] = useState('');
   const [salvandoImagem, setSalvandoImagem] = useState(false);
   const [deletandoImagem, setDeletandoImagem] = useState(false);
+  const [produtoFichaTecnica, setProdutoFichaTecnica] = useState<Produto | null>(null);
   const [paginacao, setPaginacao] = useState<Paginacao>({
     total: 0,
     pagina: 1,
@@ -246,6 +248,14 @@ export default function ProdutosPage() {
     }
   };
 
+  const handleFichaTecnica = (produto: Produto) => {
+    setProdutoFichaTecnica(produto);
+  };
+
+  const fecharFichaTecnica = () => {
+    setProdutoFichaTecnica(null);
+  };
+
   const deletarImagem = async (produto: Produto) => {
     if (!produto.url_imagem) {
       toast({
@@ -338,6 +348,7 @@ export default function ProdutosPage() {
                       <TableHead>Código</TableHead>
                       <TableHead>Descrição</TableHead>
                       <TableHead>Imagem</TableHead>
+                      <TableHead>Ficha Técnica</TableHead>
                       <TableHead>Ações</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -366,6 +377,17 @@ export default function ProdutosPage() {
                               <span className="text-sm">Sem imagem</span>
                             </div>
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleFichaTecnica(produto)}
+                            className="flex items-center gap-2"
+                          >
+                            <FileText className="h-4 w-4" />
+                            Ficha Técnica
+                          </Button>
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
@@ -594,6 +616,19 @@ export default function ProdutosPage() {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Modal Ficha Técnica */}
+        {produtoFichaTecnica && (
+          <FichaTecnicaModal
+            produto={produtoFichaTecnica}
+            isOpen={!!produtoFichaTecnica}
+            onClose={fecharFichaTecnica}
+            onSave={() => {
+              // Opcional: recarregar produtos se precisar
+              console.log('Ficha técnica salva');
+            }}
+          />
         )}
       </div>
     </MainLayout>
