@@ -30,13 +30,6 @@ export async function POST() {
       CREATE TABLE IF NOT EXISTS produto_ficha_tecnica (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           codi_psv TEXT NOT NULL,
-          marca TEXT,
-          modelo TEXT,
-          peso DECIMAL(10,3),
-          dimensoes TEXT,
-          cor TEXT,
-          material TEXT,
-          caracteristicas TEXT,
           especificacoes_tecnicas TEXT,
           observacoes TEXT,
           data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,

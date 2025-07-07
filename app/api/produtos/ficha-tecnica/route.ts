@@ -6,13 +6,6 @@ import { open } from 'sqlite';
 interface FichaTecnica {
   id?: number;
   codi_psv: string;
-  marca?: string;
-  modelo?: string;
-  peso?: number;
-  dimensoes?: string;
-  cor?: string;
-  material?: string;
-  caracteristicas?: string;
   especificacoes_tecnicas?: string;
   observacoes?: string;
   data_cadastro?: string;
@@ -113,25 +106,11 @@ export async function POST(request: Request) {
         // Atualizar ficha técnica existente
         await db.run(`
           UPDATE produto_ficha_tecnica SET 
-            marca = ?,
-            modelo = ?,
-            peso = ?,
-            dimensoes = ?,
-            cor = ?,
-            material = ?,
-            caracteristicas = ?,
             especificacoes_tecnicas = ?,
             observacoes = ?,
             data_atualizacao = CURRENT_TIMESTAMP
           WHERE codi_psv = ?
         `, [
-          dados.marca || null,
-          dados.modelo || null,
-          dados.peso || null,
-          dados.dimensoes || null,
-          dados.cor || null,
-          dados.material || null,
-          dados.caracteristicas || null,
           dados.especificacoes_tecnicas || null,
           dados.observacoes || null,
           dados.codi_psv.trim()
@@ -140,18 +119,10 @@ export async function POST(request: Request) {
         // Inserir nova ficha técnica
         await db.run(`
           INSERT INTO produto_ficha_tecnica (
-            codi_psv, marca, modelo, peso, dimensoes, cor, material,
-            caracteristicas, especificacoes_tecnicas, observacoes
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            codi_psv, especificacoes_tecnicas, observacoes
+          ) VALUES (?, ?, ?)
         `, [
           dados.codi_psv.trim(),
-          dados.marca || null,
-          dados.modelo || null,
-          dados.peso || null,
-          dados.dimensoes || null,
-          dados.cor || null,
-          dados.material || null,
-          dados.caracteristicas || null,
           dados.especificacoes_tecnicas || null,
           dados.observacoes || null
         ]);

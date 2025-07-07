@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,13 +11,6 @@ import { FileText, X, Save, Trash2 } from "lucide-react";
 interface FichaTecnica {
   id?: number;
   codi_psv: string;
-  marca?: string;
-  modelo?: string;
-  peso?: number;
-  dimensoes?: string;
-  cor?: string;
-  material?: string;
-  caracteristicas?: string;
   especificacoes_tecnicas?: string;
   observacoes?: string;
   data_cadastro?: string;
@@ -38,13 +30,6 @@ interface FichaTecnicaModalProps {
 export function FichaTecnicaModal({ produto, isOpen, onClose, onSave }: FichaTecnicaModalProps) {
   const [fichaTecnica, setFichaTecnica] = useState<FichaTecnica>({
     codi_psv: produto.CODI_PSV,
-    marca: '',
-    modelo: '',
-    peso: undefined,
-    dimensoes: '',
-    cor: '',
-    material: '',
-    caracteristicas: '',
     especificacoes_tecnicas: '',
     observacoes: ''
   });
@@ -73,13 +58,6 @@ export function FichaTecnicaModal({ produto, isOpen, onClose, onSave }: FichaTec
         // Resetar para valores padrão se não existe ficha técnica
         setFichaTecnica({
           codi_psv: produto.CODI_PSV,
-          marca: '',
-          modelo: '',
-          peso: undefined,
-          dimensoes: '',
-          cor: '',
-          material: '',
-          caracteristicas: '',
           especificacoes_tecnicas: '',
           observacoes: ''
         });
@@ -167,13 +145,6 @@ export function FichaTecnicaModal({ produto, isOpen, onClose, onSave }: FichaTec
         // Resetar campos
         setFichaTecnica({
           codi_psv: produto.CODI_PSV,
-          marca: '',
-          modelo: '',
-          peso: undefined,
-          dimensoes: '',
-          cor: '',
-          material: '',
-          caracteristicas: '',
           especificacoes_tecnicas: '',
           observacoes: ''
         });
@@ -198,7 +169,7 @@ export function FichaTecnicaModal({ produto, isOpen, onClose, onSave }: FichaTec
     }
   };
 
-  const handleInputChange = (field: keyof FichaTecnica, value: string | number) => {
+  const handleInputChange = (field: keyof FichaTecnica, value: string) => {
     setFichaTecnica(prev => ({
       ...prev,
       [field]: value
@@ -235,95 +206,16 @@ export function FichaTecnicaModal({ produto, isOpen, onClose, onSave }: FichaTec
             <div className="text-center py-4">Carregando ficha técnica...</div>
           ) : (
             <div className="space-y-4">
-              {/* Primeira linha: Marca e Modelo */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="marca">Marca</Label>
-                  <Input
-                    id="marca"
-                    value={fichaTecnica.marca || ''}
-                    onChange={(e) => handleInputChange('marca', e.target.value)}
-                    placeholder="Ex: Samsung, Apple, etc."
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="modelo">Modelo</Label>
-                  <Input
-                    id="modelo"
-                    value={fichaTecnica.modelo || ''}
-                    onChange={(e) => handleInputChange('modelo', e.target.value)}
-                    placeholder="Ex: Galaxy S23, iPhone 15, etc."
-                  />
-                </div>
-              </div>
-
-              {/* Segunda linha: Peso e Dimensões */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="peso">Peso (kg)</Label>
-                                     <Input
-                     id="peso"
-                     type="number"
-                     step="0.001"
-                     value={fichaTecnica.peso?.toString() || ''}
-                     onChange={(e) => handleInputChange('peso', e.target.value ? parseFloat(e.target.value) : 0)}
-                     placeholder="Ex: 0.5"
-                   />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dimensoes">Dimensões</Label>
-                  <Input
-                    id="dimensoes"
-                    value={fichaTecnica.dimensoes || ''}
-                    onChange={(e) => handleInputChange('dimensoes', e.target.value)}
-                    placeholder="Ex: 10 x 20 x 5 cm"
-                  />
-                </div>
-              </div>
-
-              {/* Terceira linha: Cor e Material */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="cor">Cor</Label>
-                  <Input
-                    id="cor"
-                    value={fichaTecnica.cor || ''}
-                    onChange={(e) => handleInputChange('cor', e.target.value)}
-                    placeholder="Ex: Preto, Branco, Azul"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="material">Material</Label>
-                  <Input
-                    id="material"
-                    value={fichaTecnica.material || ''}
-                    onChange={(e) => handleInputChange('material', e.target.value)}
-                    placeholder="Ex: Plástico, Metal, Vidro"
-                  />
-                </div>
-              </div>
-
-              {/* Características */}
-              <div className="space-y-2">
-                <Label htmlFor="caracteristicas">Características</Label>
-                <Textarea
-                  id="caracteristicas"
-                  rows={3}
-                  value={fichaTecnica.caracteristicas || ''}
-                  onChange={(e) => handleInputChange('caracteristicas', e.target.value)}
-                  placeholder="Descreva as principais características do produto..."
-                />
-              </div>
-
               {/* Especificações Técnicas */}
               <div className="space-y-2">
                 <Label htmlFor="especificacoes_tecnicas">Especificações Técnicas</Label>
                 <Textarea
                   id="especificacoes_tecnicas"
-                  rows={4}
+                  rows={6}
                   value={fichaTecnica.especificacoes_tecnicas || ''}
                   onChange={(e) => handleInputChange('especificacoes_tecnicas', e.target.value)}
-                  placeholder="Especificações técnicas detalhadas do produto..."
+                  placeholder="Digite as especificações técnicas detalhadas do produto..."
+                  className="resize-none"
                 />
               </div>
 
@@ -332,10 +224,11 @@ export function FichaTecnicaModal({ produto, isOpen, onClose, onSave }: FichaTec
                 <Label htmlFor="observacoes">Observações</Label>
                 <Textarea
                   id="observacoes"
-                  rows={3}
+                  rows={4}
                   value={fichaTecnica.observacoes || ''}
                   onChange={(e) => handleInputChange('observacoes', e.target.value)}
-                  placeholder="Observações adicionais sobre o produto..."
+                  placeholder="Digite observações adicionais sobre o produto..."
+                  className="resize-none"
                 />
               </div>
 
