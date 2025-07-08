@@ -1,4 +1,4 @@
-# Upload de Imagens para Produtos com Processamento Automático
+npm r# Upload de Imagens para Produtos com Processamento Automático
 
 ## 🚀 **FUNCIONALIDADES IMPLEMENTADAS**
 

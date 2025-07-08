@@ -13,9 +13,9 @@ export async function GET(request: Request) {
     const start = (page - 1) * limit + 1;
     const end = page * limit;
 
-    // Construir a condição de busca
+    // Construir a condição de busca (case-insensitive)
     let whereBusca = busca 
-      ? `AND (P.CODI_PSV LIKE '%${busca}%' OR P.DESC_PSV LIKE '%${busca}%')`
+      ? `AND (UPPER(P.CODI_PSV) LIKE '%${busca.toUpperCase()}%' OR UPPER(P.DESC_PSV) LIKE '%${busca.toUpperCase()}%')`
       : '';
 
     if (sqlParams.produtos.empresas.length != 0) {
