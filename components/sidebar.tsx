@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, Users, Settings, LogOut, X, ShoppingCart, Package, MapPin } from "lucide-react"
+import { LayoutDashboard, Users, Settings, LogOut, X, ShoppingCart, Package, MapPin, TrendingUp } from "lucide-react"
 
 interface SidebarProps {
   onClose: () => void
@@ -27,6 +27,11 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
       name: "Produtos",
       href: "/produtos",
       icon: Package,
+    },
+    {
+      name: "Previsão de Vendas",
+      href: "/previsao-vendas",
+      icon: TrendingUp,
     },
     {
       name: "Relatório de Checkin",
