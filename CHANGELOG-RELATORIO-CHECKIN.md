@@ -155,7 +155,15 @@
 - ✅ **Hook**: Gerenciamento de estado completo
 - ✅ **Interface**: Design moderno e responsivo
 - ✅ **Navegação**: Integrada com sistema existente
+- ✅ **Layout**: Sidebar funcionando corretamente
 - ✅ **Documentação**: Changelog detalhado criado
+
+### 🔧 **Correção Aplicada - 30/01/2025**
+
+#### Problema: Sidebar não aparecia na página de checkin
+- **Causa**: Página não estava usando o componente `MainLayout`
+- **Solução**: Adicionado `MainLayout` envolvendo todo o conteúdo da página
+- **Resultado**: Sidebar agora aparece corretamente, permitindo navegação entre as páginas
 
 ### 📝 Observações Importantes
 
