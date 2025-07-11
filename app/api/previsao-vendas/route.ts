@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { executeQuery } from '@/lib/db/oracle';
+import { executeQuery } from '@/lib/db/odbc';
 
 export async function GET(request: Request) {
   try {
@@ -75,7 +75,7 @@ async function getResumoGeral(vendedor: string) {
       JOIN IPEDIDO I ON P.PEDI_PED = I.PEDI_PED AND P.SERI_PED = I.SERI_PED
       WHERE P.DEMI_PED >= SYSDATE - 31
         AND P.SERI_PED = '9'
-        AND P.COD1_PES = :vendedor
+        AND P.COD1_PES = ?
     `;
 
     const result = await executeQuery(query, [vendedor]);
@@ -84,7 +84,7 @@ async function getResumoGeral(vendedor: string) {
     
     return NextResponse.json({
       success: true,
-      data: result.rows
+      data: result
     });
   } catch (error) {
     console.error('Erro ao buscar resumo geral:', error);
@@ -107,9 +107,9 @@ async function getListagemPedidos(vendedor: string, limit: string, offset: strin
       FROM PEDIDO P
       WHERE P.DEMI_PED >= SYSDATE - 31
         AND P.SERI_PED = '9'
-        AND P.COD1_PES = :vendedor
+        AND P.COD1_PES = ?
       ORDER BY P.DEMI_PED DESC
-      OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+      OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
     `;
 
     const result = await executeQuery(query, [vendedor, offset, limit]);
@@ -120,7 +120,7 @@ async function getListagemPedidos(vendedor: string, limit: string, offset: strin
       FROM PEDIDO P
       WHERE P.DEMI_PED >= SYSDATE - 31
         AND P.SERI_PED = '9'
-        AND P.COD1_PES = :vendedor
+        AND P.COD1_PES = ?
     `;
 
     const countResult = await executeQuery(countQuery, [vendedor]);
@@ -130,8 +130,8 @@ async function getListagemPedidos(vendedor: string, limit: string, offset: strin
     
     return NextResponse.json({
       success: true,
-      data: result.rows,
-      total: (countResult.rows?.[0] as any)?.TOTAL || 0
+      data: result,
+      total: (countResult as any)?.[0]?.TOTAL || 0
     });
   } catch (error) {
     console.error('Erro ao buscar listagem de pedidos:', error);
@@ -156,7 +156,7 @@ async function getItensPedido(vendedor: string) {
       JOIN PEDIDO P ON P.PEDI_PED = I.PEDI_PED AND P.SERI_PED = I.SERI_PED
       WHERE P.DEMI_PED >= SYSDATE - 31
         AND P.SERI_PED = '9'
-        AND P.COD1_PES = :vendedor
+        AND P.COD1_PES = ?
       ORDER BY I.PEDI_PED
     `;
 
@@ -166,7 +166,7 @@ async function getItensPedido(vendedor: string) {
     
     return NextResponse.json({
       success: true,
-      data: result.rows
+      data: result
     });
   } catch (error) {
     console.error('Erro ao buscar itens por pedido:', error);
@@ -185,7 +185,7 @@ async function getProdutosMaisVendidos(vendedor: string) {
       JOIN PEDIDO P ON P.PEDI_PED = I.PEDI_PED AND P.SERI_PED = I.SERI_PED
       WHERE P.DEMI_PED >= SYSDATE - 31
         AND P.SERI_PED = '9'
-        AND P.COD1_PES = :vendedor
+        AND P.COD1_PES = ?
       GROUP BY I.CODI_PSV
       ORDER BY TOTAL_QUANTIDADE DESC
       FETCH FIRST 10 ROWS ONLY
@@ -197,7 +197,7 @@ async function getProdutosMaisVendidos(vendedor: string) {
     
     return NextResponse.json({
       success: true,
-      data: result.rows
+      data: result
     });
   } catch (error) {
     console.error('Erro ao buscar produtos mais vendidos:', error);
@@ -215,7 +215,7 @@ async function getVendasPorDia(vendedor: string) {
       FROM PEDIDO P
       WHERE P.DEMI_PED >= SYSDATE - 31
         AND P.SERI_PED = '9'
-        AND P.COD1_PES = :vendedor
+        AND P.COD1_PES = ?
       GROUP BY TO_CHAR(P.DEMI_PED, 'YYYY-MM-DD')
       ORDER BY DIA
     `;
@@ -226,7 +226,7 @@ async function getVendasPorDia(vendedor: string) {
     
     return NextResponse.json({
       success: true,
-      data: result.rows
+      data: result
     });
   } catch (error) {
     console.error('Erro ao buscar vendas por dia:', error);

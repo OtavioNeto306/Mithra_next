@@ -303,5 +303,23 @@ ORDER BY DIA
 
 ---
 
+## 🔧 **Correção Aplicada - 30/01/2025**
+
+### Problema: Erro de conexão Oracle (NJS-125)
+- **Causa**: API estava usando `@/lib/db/oracle` incorretamente
+- **Solução**: Alterado para `@/lib/db/odbc` seguindo padrão do projeto
+- **Ajustes realizados:**
+  - ✅ **Import corrigido**: `@/lib/db/oracle` → `@/lib/db/odbc`
+  - ✅ **Retorno das queries**: `result.rows` → `result`
+  - ✅ **Parâmetros das queries**: `:vendedor` → `?` (formato ODBC)
+
+### Resultado:
+- ✅ **Conexão funcionando** com Oracle via ODBC
+- ✅ **Compatibilidade** com outras APIs do projeto
+- ✅ **Queries corrigidas** com parâmetros no formato correto
+
+---
+
 *Implementação concluída em: 30/01/2025*  
+*Correção aplicada em: 30/01/2025*  
 *Status: ✅ **FUNCIONAL E PRONTO PARA USO*** 
