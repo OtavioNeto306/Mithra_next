@@ -318,6 +318,14 @@ ORDER BY DIA
 - ✅ **Compatibilidade** com outras APIs do projeto
 - ✅ **Queries corrigidas** com parâmetros no formato correto
 
+### Problema: ORA-01722 "número inválido"
+- **Causa**: Campos numéricos com valores nulos ou formatos inválidos
+- **Solução**: Adicionado tratamento de valores nulos e conversões seguras
+- **Ajustes realizados:**
+  - ✅ **Tratamento de NULL**: `CASE WHEN campo IS NOT NULL AND TRIM(campo) != '' THEN...`
+  - ✅ **Conversões seguras**: `TO_NUMBER(REPLACE(campo, ',', '.'))` com fallback para 0
+  - ✅ **Todas as queries**: Resumo, pedidos, itens, produtos, vendas por dia
+
 ---
 
 *Implementação concluída em: 30/01/2025*  
