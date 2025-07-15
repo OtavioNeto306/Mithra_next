@@ -85,7 +85,7 @@ export default function PedidosPage() {
   const handleExportarPedidos = () => {
     toast({
       title: "Exportação iniciada",
-      description: "Os pedidos estão sendo exportados para CSV.",
+      description: "Os orçamentos estão sendo exportados para CSV.",
     })
   }
 
@@ -94,7 +94,7 @@ export default function PedidosPage() {
     await refetch()
     toast({
       title: "Dados atualizados",
-      description: "A lista de pedidos foi atualizada com sucesso.",
+      description: "A lista de orçamentos foi atualizada com sucesso.",
     })
   }
 
@@ -128,7 +128,7 @@ export default function PedidosPage() {
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Erro ao carregar pedidos: {error}
+              Erro ao carregar orçamentos: {error}
             </AlertDescription>
           </Alert>
         )}
