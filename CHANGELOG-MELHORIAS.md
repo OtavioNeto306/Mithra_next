@@ -44,3 +44,12 @@ let whereBusca = busca
 
 **Relacionado ao projeto:**
 Padronização da nomenclatura para refletir corretamente o fluxo de orçamentos no sistema, melhorando a clareza para o usuário final. 
+
+## [Data: 30/05/2024]
+- Alterado todos os textos visíveis ao usuário de 'Pedido' para 'Orçamento' na tela de detalhes do pedido (`app/pedidos/[id]/page.tsx`), incluindo:
+  - Título principal (ex: Orçamento #000054)
+  - 'Itens do Orçamento'
+  - 'Informações do Orçamento'
+  - Descrição de quantidade de itens
+  - Mantida a nomenclatura interna como 'pedido' para não impactar a lógica do sistema.
+  - Ajuste também cobre as abas Detalhes, Itens e Financeiro. 

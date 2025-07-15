@@ -189,7 +189,7 @@ export default function PedidoDetalhesPage() {
             </Button>
             <div>
               <h1 className="text-3xl font-bold tracking-tight">
-                Pedido #{pedido.numero}
+                Orçamento #{pedido.numero}
               </h1>
               <p className="text-muted-foreground">
                 Chave: {pedido.chave} • Emitido em {formatarData(pedido.emissao)}
@@ -304,7 +304,7 @@ export default function PedidoDetalhesPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
-                    Informações do Pedido
+                    Informações do Orçamento
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -365,10 +365,10 @@ export default function PedidoDetalhesPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
-                  Itens do Pedido
+                  Itens do Orçamento
                 </CardTitle>
                 <CardDescription>
-                  {pedido.itens.length} item(ns) no pedido
+                  {pedido.itens.length} item(ns) no orçamento
                 </CardDescription>
               </CardHeader>
               <CardContent>
