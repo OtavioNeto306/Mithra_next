@@ -284,6 +284,16 @@ export default function CheckinPage() {
                             <div className="flex items-center gap-2">
                               <MapPin className="h-4 w-4 text-muted-foreground" />
                               <span className="text-sm">{item.CIDADE || '-'}</span>
+                              {item.LATITUDE && item.LONGITUDE && item.LATITUDE !== '0' && item.LONGITUDE !== '0' && (
+                                <a
+                                  href={`https://www.google.com/maps?q=${item.LATITUDE},${item.LONGITUDE}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="ml-2 text-blue-600 underline text-xs"
+                                >
+                                  Ver no Google Maps
+                                </a>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>

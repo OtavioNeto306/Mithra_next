@@ -184,3 +184,5 @@
 ## [Data: 2024-05-30]
 
 - Removida a coluna 'Coordenadas' (latitude/longitude) da tabela de dados de checkin na tela de Checkin, conforme solicitação para simplificar a visualização. 
+
+- Adicionado link "Ver no Google Maps" ao lado da cidade na coluna Localização da tela de Checkin. O link utiliza as coordenadas LATITUDE e LONGITUDE do registro e só aparece se ambas forem válidas. 
