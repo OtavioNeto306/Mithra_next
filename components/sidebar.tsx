@@ -19,7 +19,7 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
       icon: LayoutDashboard,
     },
     {
-      name: "Pedidos",
+      name: "Orçamentos",
       href: "/pedidos",
       icon: ShoppingCart,
     },
@@ -59,7 +59,7 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
   return (
     <div className="flex h-full flex-col bg-white dark:bg-gray-800">
       <div className="flex h-16 items-center justify-between border-b px-4 dark:border-gray-700">
-        <h2 className="text-lg font-semibold">Gestão de Pedidos</h2>
+        <h2 className="text-lg font-semibold">Gestão de Orçamentos</h2>
         <Button variant="ghost" size="icon" onClick={onClose} className="md:hidden">
           <X className="h-5 w-5" />
           <span className="sr-only">Fechar menu</span>

@@ -103,9 +103,9 @@ export default function PedidosPage() {
       <div className="space-y-6">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Pedidos</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Orçamentos</h1>
             <p className="text-muted-foreground">
-              Gerencie todos os pedidos do sistema • {pagination.total} pedidos encontrados
+              Gerencie todos os orçamentos do sistema • {pagination.total} orçamentos encontrados
             </p>
           </div>
           <div className="flex gap-2">
@@ -115,7 +115,7 @@ export default function PedidosPage() {
             </Button>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Novo Pedido
+              Novo Orçamento
             </Button>
             <Button variant="outline" onClick={handleExportarPedidos}>
               <FileDown className="mr-2 h-4 w-4" />
@@ -135,7 +135,7 @@ export default function PedidosPage() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle>Lista de Pedidos</CardTitle>
+            <CardTitle>Lista de Orçamentos</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="mb-4 flex flex-col gap-4 sm:flex-row">
@@ -190,14 +190,14 @@ export default function PedidosPage() {
                       <TableCell colSpan={8} className="h-24 text-center">
                         <div className="flex items-center justify-center">
                           <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                          Carregando pedidos...
+                          Carregando orçamentos...
                         </div>
                       </TableCell>
                     </TableRow>
                   ) : pedidos.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={8} className="h-24 text-center">
-                        {error ? "Erro ao carregar os dados" : "Nenhum pedido encontrado."}
+                        {error ? "Erro ao carregar os dados" : "Nenhum orçamento encontrado."}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -250,7 +250,7 @@ export default function PedidosPage() {
               <div className="mt-4 flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
                   Página {pagination.page} de {pagination.totalPages} 
-                  • {pagination.total} pedidos no total
+                  • {pagination.total} orçamentos no total
                 </div>
                 <div className="flex gap-2">
                   <Button

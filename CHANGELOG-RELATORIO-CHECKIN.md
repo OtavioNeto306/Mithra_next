@@ -47,7 +47,7 @@
   - Página atual / Total de páginas
   - Registros exibidos na página
 - ✅ **Tabela responsiva**:
-  - Colunas: Data/Hora, Cliente, Contato, Localização, Coordenadas, Técnico
+  - Colunas: Data/Hora, Cliente, Contato, Localização, Técnico
   - Ícones visuais para cada tipo de informação
   - Formatação de coordenadas GPS
   - Badges para códigos de cliente e técnico
@@ -180,3 +180,7 @@
 **Implementado por:** Assistente IA  
 **Tecnologias:** Next.js, TypeScript, MySQL, shadcn/ui, Tailwind CSS  
 **Compatibilidade:** Sistema Mithra Next existente 
+
+## [Data: 2024-05-30]
+
+- Removida a coluna 'Coordenadas' (latitude/longitude) da tabela de dados de checkin na tela de Checkin, conforme solicitação para simplificar a visualização. 

@@ -238,14 +238,13 @@ export default function CheckinPage() {
                       <TableHead>Cliente</TableHead>
                       <TableHead>Contato</TableHead>
                       <TableHead>Localização</TableHead>
-                      <TableHead>Coordenadas</TableHead>
                       <TableHead>Técnico</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {checkinData.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
+                        <TableCell colSpan={5} className="text-center py-8">
                           <div className="flex flex-col items-center gap-2">
                             <Search className="h-8 w-8 text-muted-foreground" />
                             <p className="text-muted-foreground">Nenhum registro encontrado</p>
@@ -285,12 +284,6 @@ export default function CheckinPage() {
                             <div className="flex items-center gap-2">
                               <MapPin className="h-4 w-4 text-muted-foreground" />
                               <span className="text-sm">{item.CIDADE || '-'}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col gap-1 text-xs">
-                              <span>Lat: {formatCoordinate(item.LATITUDE)}</span>
-                              <span>Lng: {formatCoordinate(item.LONGITUDE)}</span>
                             </div>
                           </TableCell>
                           <TableCell>
