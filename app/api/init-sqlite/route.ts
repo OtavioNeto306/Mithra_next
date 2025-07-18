@@ -55,11 +55,58 @@ export async function POST() {
       END;
     `);
 
+    // Criar tabela metas_vendedores se não existir
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS metas_vendedores (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          codigo_vendedor TEXT NOT NULL,
+          ano INTEGER NOT NULL,
+          mes INTEGER NOT NULL CHECK (mes >= 1 AND mes <= 12),
+          tipo_meta TEXT NOT NULL CHECK (tipo_meta IN ('fornecedor', 'produto')),
+          codigo_fornecedor TEXT,
+          codigo_produto TEXT,
+          valor_meta DECIMAL(15,2) NOT NULL,
+          observacoes TEXT,
+          data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+          data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(codigo_vendedor, ano, mes, tipo_meta, COALESCE(codigo_fornecedor, ''), COALESCE(codigo_produto, ''))
+      );
+    `);
+
+    // Criar índices para metas_vendedores
+    await db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_metas_vendedores_codigo_vendedor ON metas_vendedores(codigo_vendedor);
+    `);
+    await db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_metas_vendedores_ano_mes ON metas_vendedores(ano, mes);
+    `);
+    await db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_metas_vendedores_tipo_meta ON metas_vendedores(tipo_meta);
+    `);
+    await db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_metas_vendedores_fornecedor ON metas_vendedores(codigo_fornecedor);
+    `);
+    await db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_metas_vendedores_produto ON metas_vendedores(codigo_produto);
+    `);
+
+    // Criar trigger para atualizar data_atualizacao das metas
+    await db.exec(`
+      CREATE TRIGGER IF NOT EXISTS update_metas_vendedores_timestamp 
+          AFTER UPDATE ON metas_vendedores
+          FOR EACH ROW
+      BEGIN
+          UPDATE metas_vendedores 
+          SET data_atualizacao = CURRENT_TIMESTAMP 
+          WHERE id = NEW.id;
+      END;
+    `);
+
     await db.close();
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Tabela produto_imagens criada com sucesso' 
+      message: 'Tabelas criadas com sucesso' 
     });
   } catch (error) {
     console.error('Erro ao criar tabela:', error);

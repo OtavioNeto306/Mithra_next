@@ -1,6 +1,0 @@
-CREATE TABLE IF NOT EXISTS configuracoes (
-  id INTEGER PRIMARY KEY,
-  obrigarLocalizacao BOOLEAN NOT NULL DEFAULT 0,
-  alterarPreco TEXT NOT NULL DEFAULT 'nao',
-  tempoLimite INTEGER NOT NULL DEFAULT 30
-); 

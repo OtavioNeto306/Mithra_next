@@ -1,8 +1,22 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, Users, Settings, LogOut, X, ShoppingCart, Package, MapPin, TrendingUp } from "lucide-react"
+import { 
+  LayoutDashboard, 
+  Users, 
+  Settings, 
+  LogOut, 
+  X, 
+  ShoppingCart, 
+  Package, 
+  MapPin, 
+  Target,
+  Building2,
+  BarChart3,
+  UserCheck
+} from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface SidebarProps {
   onClose: () => void
@@ -11,43 +25,72 @@ interface SidebarProps {
 
 export function Sidebar({ onClose, onLogout }: SidebarProps) {
   const router = useRouter()
+  const pathname = usePathname()
 
   const navItems = [
     {
-      name: "Dashboard",
-      href: "/dashboard",
-      icon: LayoutDashboard,
+      group: "Principal",
+      items: [
+        {
+          name: "Dashboard",
+          href: "/dashboard",
+          icon: LayoutDashboard,
+          description: "Visão geral do sistema"
+        }
+      ]
     },
     {
-      name: "Orçamentos",
-      href: "/pedidos",
-      icon: ShoppingCart,
+      group: "Gestão Comercial",
+      items: [
+        {
+          name: "Orçamentos",
+          href: "/pedidos",
+          icon: ShoppingCart,
+          description: "Gerenciar orçamentos"
+        },
+        {
+          name: "Produtos",
+          href: "/produtos",
+          icon: Package,
+          description: "Catálogo de produtos"
+        },
+
+      ]
     },
     {
-      name: "Produtos",
-      href: "/produtos",
-      icon: Package,
+      group: "Gestão de Equipe",
+      items: [
+        {
+          name: "Metas de Vendedores",
+          href: "/metas",
+          icon: Target,
+          description: "Definir metas mensais"
+        },
+        {
+          name: "Relatório de Checkin",
+          href: "/checkin",
+          icon: MapPin,
+          description: "Controle de presença"
+        },
+        {
+          name: "Gerência de Comissões",
+          href: "/gerencia",
+          icon: UserCheck,
+          description: "Gestão de comissões"
+        }
+      ]
     },
     {
-      name: "Previsão de Vendas",
-      href: "/previsao-vendas",
-      icon: TrendingUp,
-    },
-    {
-      name: "Relatório de Checkin",
-      href: "/checkin",
-      icon: MapPin,
-    },
-    {
-      name: "Gerência de Comissões",
-      href: "/gerencia",
-      icon: Users,
-    },
-    {
-      name: "Configurações",
-      href: "/configuracoes",
-      icon: Settings,
-    },
+      group: "Sistema",
+      items: [
+        {
+          name: "Configurações",
+          href: "/configuracoes",
+          icon: Settings,
+          description: "Configurações do sistema"
+        }
+      ]
+    }
   ]
 
   // Função para navegar para uma rota
@@ -57,35 +100,79 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
   }
 
   return (
-    <div className="flex h-full flex-col bg-white dark:bg-gray-800">
-      <div className="flex h-16 items-center justify-between border-b px-4 dark:border-gray-700">
-        <h2 className="text-lg font-semibold">Gestão de Orçamentos</h2>
+    <div className="flex h-full flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-r border-gray-200 dark:border-gray-700">
+      {/* Header */}
+      <div className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6">
+        <div className="flex items-center space-x-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
+            <Building2 className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Mithra</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Gestão de Orçamentos</p>
+          </div>
+        </div>
         <Button variant="ghost" size="icon" onClick={onClose} className="md:hidden">
           <X className="h-5 w-5" />
           <span className="sr-only">Fechar menu</span>
         </Button>
       </div>
-      <nav className="flex-1 space-y-1 px-2 py-4">
-        {navItems.map((item) => (
-          <Button
-            key={item.href}
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={() => navigateTo(item.href)}
-          >
-            <item.icon className="mr-3 h-5 w-5" />
-            <span className="flex-1 truncate">{item.name}</span>
-          </Button>
+
+      {/* Navigation */}
+      <nav className="flex-1 space-y-6 px-4 py-6">
+        {navItems.map((group) => (
+          <div key={group.group} className="space-y-2">
+            <h3 className="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              {group.group}
+            </h3>
+            <div className="space-y-1">
+              {group.items.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                  <Button
+                    key={item.href}
+                    variant={isActive ? "default" : "ghost"}
+                    className={cn(
+                      "w-full justify-start h-12 px-3 transition-all duration-200",
+                      isActive 
+                        ? "bg-blue-600 text-white shadow-md hover:bg-blue-700" 
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                    )}
+                    onClick={() => navigateTo(item.href)}
+                  >
+                    <item.icon className={cn(
+                      "mr-3 h-5 w-5 transition-colors",
+                      isActive ? "text-white" : "text-gray-500 dark:text-gray-400"
+                    )} />
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">{item.name}</span>
+                      <span className={cn(
+                        "text-xs transition-colors",
+                        isActive ? "text-blue-100" : "text-gray-500 dark:text-gray-400"
+                      )}>
+                        {item.description}
+                      </span>
+                    </div>
+                  </Button>
+                )
+              })}
+            </div>
+          </div>
         ))}
       </nav>
-      <div className="border-t p-4 dark:border-gray-700">
+
+      {/* Footer */}
+      <div className="border-t border-gray-200 dark:border-gray-700 p-4">
         <Button
           variant="ghost"
-          className="w-full justify-start text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+          className="w-full justify-start h-12 px-3 text-gray-600 hover:bg-red-50 hover:text-red-600 dark:text-gray-300 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all duration-200"
           onClick={onLogout}
         >
           <LogOut className="mr-3 h-5 w-5" />
-          <span>Sair</span>
+          <div className="flex flex-col items-start">
+            <span className="font-medium">Sair</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">Encerrar sessão</span>
+          </div>
         </Button>
       </div>
     </div>

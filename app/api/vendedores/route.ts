@@ -1,24 +1,31 @@
 import { NextResponse } from 'next/server';
-import { executeQuery } from '@/lib/db/odbc';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
 
 interface Vendedor {
-  CODI_PES: string;
-  NOME_PES: string;
+  codigo: string;
+  nome: string;
 }
 
 export async function GET() {
   try {
+    const db = await open({
+      filename: 'usuarios.db3',
+      driver: sqlite3.Database
+    });
+
+    // Buscar vendedores da tabela USERCC no SQLite
     const query = `
       SELECT 
-        P.CODI_PES,
-        P.NOME_PES
-      FROM PESSOAL P 
-      INNER JOIN VENDEDOR V ON P.CODI_PES = V.CODI_PES 
-      WHERE P.SITU_PES = 'A'
-      ORDER BY P.NOME_PES
+        USUARIO as codigo,
+        NOME as nome
+      FROM USERCC 
+      WHERE BLOQUEADO IS NULL OR BLOQUEADO = 0
+      ORDER BY NOME
     `;
 
-    const result = await executeQuery(query) as Vendedor[];
+    const result = await db.all(query) as Vendedor[];
+    await db.close();
     
     if (!result || !Array.isArray(result)) {
       throw new Error('Resultado da query inválido');

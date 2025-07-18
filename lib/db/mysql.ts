@@ -1,38 +1,21 @@
 import mysql from 'mysql2/promise';
-
-// Interface para configuração da conexão
-interface MySQLConfig {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  database: string;
-}
-
-// Configuração do banco (usar variáveis de ambiente em produção)
-const config: MySQLConfig = {
-  host: process.env.MYSQL_HOST || 'localhost',
-  port: parseInt(process.env.MYSQL_PORT || '3306'),
-  user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || '',
-  database: process.env.MYSQL_DATABASE || 'database_name'
-};
+import { dbConfig } from './config';
 
 // Pool de conexões otimizado para produção
 let pool: mysql.Pool | null = null;
 
 function createPool(): mysql.Pool {
   if (!pool) {
-    pool = mysql.createPool({
-      ...config,
+    const poolConfig = {
+      ...dbConfig.mysql,
       // 🚀 CONFIGURAÇÕES OTIMIZADAS PARA PRODUÇÃO
       waitForConnections: true,
-      connectionLimit: 50,              // ✅ Aumentado de 10 para 50
-      queueLimit: 100,                 // ✅ Limitado para evitar memory leak
-      acquireTimeout: 60000,           // ✅ 1 minuto timeout para conexões
-      timeout: 60000,                  // ✅ Query timeout
-      reconnect: true,                 // ✅ Auto-reconnect
-      idleTimeout: 300000,             // ✅ Fechar conexões idle após 5min
+      connectionLimit: parseInt(process.env.MYSQL_CONNECTION_LIMIT || '50'),  // ✅ Configurável via env
+      queueLimit: parseInt(process.env.MYSQL_QUEUE_LIMIT || '100'),          // ✅ Configurável via env
+      acquireTimeout: parseInt(process.env.MYSQL_ACQUIRE_TIMEOUT || '60000'), // ✅ Configurável via env
+      timeout: parseInt(process.env.MYSQL_TIMEOUT || '60000'),               // ✅ Configurável via env
+      reconnect: true,                                                       // ✅ Auto-reconnect
+      idleTimeout: parseInt(process.env.MYSQL_IDLE_TIMEOUT || '300000'),     // ✅ Configurável via env
       
       // Configurações adicionais de performance
       supportBigNumbers: true,
@@ -41,19 +24,14 @@ function createPool(): mysql.Pool {
       multipleStatements: false,
       
       // Configurações de SSL e segurança
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-    });
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+    };
+
+    pool = mysql.createPool(poolConfig);
 
     // 📊 Event handlers para monitoramento
     pool.on('connection', (connection) => {
       console.log(`✅ Nova conexão MySQL estabelecida: ${connection.threadId}`);
-    });
-
-    pool.on('error', (err) => {
-      console.error('❌ Erro no pool MySQL:', err);
-      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        console.log('🔄 Reconectando ao MySQL...');
-      }
     });
 
     pool.on('acquire', (connection) => {

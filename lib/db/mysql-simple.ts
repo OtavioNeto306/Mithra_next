@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import { dbConfig } from './config';
 
 // Função simplificada para testar conexão
 export async function testMySQLConnection(): Promise<{ success: boolean; message: string; data?: any }> {
@@ -13,11 +14,11 @@ export async function testMySQLConnection(): Promise<{ success: boolean; message
   console.log('MYSQL_DATABASE:', process.env.MYSQL_DATABASE);
   
   const config = {
-    host: process.env.MYSQL_HOST || 'localhost',
-    port: parseInt(process.env.MYSQL_PORT || '3306'),
-    user: process.env.MYSQL_USER || 'root',
-    password: process.env.MYSQL_PASSWORD || '',
-    database: process.env.MYSQL_DATABASE || 'emporio',
+    host: dbConfig.mysql.host,
+    port: dbConfig.mysql.port,
+    user: dbConfig.mysql.user,
+    password: dbConfig.mysql.password,
+    database: dbConfig.mysql.database,
     authPlugins: {
       mysql_native_password: () => () => Buffer.alloc(0)
     }
@@ -61,11 +62,11 @@ export async function testMySQLConnection(): Promise<{ success: boolean; message
 // Função simplificada para executar queries
 export async function executeSimpleQuery(sql: string, params: any[] = []): Promise<any[]> {
   const config = {
-    host: process.env.MYSQL_HOST || 'localhost',
-    port: parseInt(process.env.MYSQL_PORT || '3306'),
-    user: process.env.MYSQL_USER || 'root',
-    password: process.env.MYSQL_PASSWORD || '',
-    database: process.env.MYSQL_DATABASE || 'emporio',
+    host: dbConfig.mysql.host,
+    port: dbConfig.mysql.port,
+    user: dbConfig.mysql.user,
+    password: dbConfig.mysql.password,
+    database: dbConfig.mysql.database,
     authPlugins: {
       mysql_native_password: () => () => Buffer.alloc(0)
     }
