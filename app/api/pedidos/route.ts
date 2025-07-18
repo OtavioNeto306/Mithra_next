@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
+import { ApiValidator } from '@/lib/validation';
 
 interface PedidoResponse {
   chave: number;
@@ -68,31 +70,66 @@ function mapStatusFromDB(status: string): string {
 }
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    
+    // Extrair e validar parâmetros
+    const page = searchParams.get('page') || '1';
+    const limit = searchParams.get('limit') || '10';
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || '';
     
-    const offset = (page - 1) * limit;
+    // Validar parâmetros
+    const paginationValidation = ApiValidator.validatePagination(page, limit);
+    const searchValidation = ApiValidator.validateSearch(search);
+    const statusValidation = ApiValidator.validateStatus(status);
+    
+    const validationResult = ApiValidator.combineResults(
+      paginationValidation,
+      searchValidation,
+      statusValidation
+    );
+    
+    if (!validationResult.isValid) {
+      const firstError = validationResult.getFirstError();
+      logger.warn('Validação de parâmetros falhou', { errors: validationResult.errors });
+      
+      return NextResponse.json(
+        { 
+          error: 'Parâmetros inválidos',
+          details: firstError?.message || 'Erro de validação',
+          field: firstError?.field
+        },
+        { status: 400 }
+      );
+    }
+    
+    // Converter parâmetros validados
+    const pageNum = ApiValidator.parseInt(page, 1);
+    const limitNum = ApiValidator.parseInt(limit, 10);
+    const searchSanitized = ApiValidator.sanitizeString(search);
+    const statusSanitized = status.toLowerCase();
+    
+    const offset = (pageNum - 1) * limitNum;
 
     // Query para buscar pedidos com informações básicas
     let whereConditions = ['1=1'];
     const queryParams: any[] = [];
 
     // Filtro de busca
-    if (search) {
+    if (searchSanitized) {
       whereConditions.push(`(c.NUMERO LIKE ? OR cl.NOME LIKE ?)`);
-      queryParams.push(`%${search}%`, `%${search}%`);
+      queryParams.push(`%${searchSanitized}%`, `%${searchSanitized}%`);
     }
 
     // Filtro de status
-    if (status && status !== 'todos') {
-      const dbStatus = status === 'pendente' ? 'A' : 
-                      status === 'faturado' ? 'F' :
-                      status === 'cancelado' ? 'C' :
-                      status === 'em processamento' ? 'P' : '';
+    if (statusSanitized && statusSanitized !== 'todos') {
+      const dbStatus = statusSanitized === 'pendente' ? 'A' : 
+                      statusSanitized === 'faturado' ? 'F' :
+                      statusSanitized === 'cancelado' ? 'C' :
+                      statusSanitized === 'em processamento' ? 'P' : '';
       if (dbStatus) {
         whereConditions.push('c.STATUS = ?');
         queryParams.push(dbStatus);
@@ -129,10 +166,9 @@ export async function GET(request: NextRequest) {
       LIMIT ? OFFSET ?
     `;
 
-    queryParams.push(limit, offset);
+    queryParams.push(limitNum, offset);
 
-    console.log('Executando query principal:', mainQuery);
-    console.log('Parâmetros:', queryParams);
+    logger.sql(mainQuery, queryParams);
 
     const response = await fetch('http://localhost:3000/api/execute-query', {
       method: 'POST',
@@ -260,18 +296,21 @@ export async function GET(request: NextRequest) {
       total = countData.data[0]?.total || 0;
     }
 
+    const duration = Date.now() - startTime;
+    logger.api('GET /api/pedidos', { page: pageNum, limit: limitNum, search: searchSanitized, status: statusSanitized }, duration);
+
     return NextResponse.json({
       data: pedidosCompletos,
       pagination: {
-        page,
-        limit,
+        page: pageNum,
+        limit: limitNum,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / limitNum),
       }
     });
 
   } catch (error) {
-    console.error('Erro ao buscar pedidos:', error);
+    logger.error('Erro ao buscar pedidos', error);
     return NextResponse.json(
       { 
         error: 'Erro interno do servidor',

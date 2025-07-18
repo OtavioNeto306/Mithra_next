@@ -125,10 +125,11 @@ export function usePedidos(): UsePedidosResult {
       
       const searchParams = new URLSearchParams();
       
-      if (params?.page) searchParams.set('page', params.page.toString());
-      if (params?.limit) searchParams.set('limit', params.limit.toString());
-      if (params?.search) searchParams.set('search', params.search);
-      if (params?.status) searchParams.set('status', params.status);
+      // Sempre enviar valores padrão se não fornecidos
+      searchParams.set('page', (params?.page || 1).toString());
+      searchParams.set('limit', (params?.limit || 10).toString());
+      searchParams.set('search', params?.search || '');
+      searchParams.set('status', params?.status || '');
       
       setCurrentParams(params || {});
       

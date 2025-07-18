@@ -59,7 +59,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       '/gerencia': 'Gerência de Comissões',
       '/configuracoes': 'Configurações'
     }
-    return pathMap[pathname] || 'Sistema'
+    return pathname ? pathMap[pathname] || 'Sistema' : 'Sistema'
   }
 
   return (
