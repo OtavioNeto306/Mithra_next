@@ -45,4 +45,13 @@ next-env.d.ts
 #documentação
 *.md
 
+#banco de dados
 *.db3
+
+#banco de dados
+usuarios.db3
+
+# Pastas a serem ignoradas
+mysql-mcp-server/
+.kilocode/
+.cursor/
