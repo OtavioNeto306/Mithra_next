@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Button } from '../../components/ui/button';
 import Link from 'next/link';
-import { MainLayout } from '@/components/main-layout'; // Importar MainLayout
+import { MainLayout } from '../../components/main-layout'; // Importar MainLayout
 
 interface Rota {
   codigoRota: string;

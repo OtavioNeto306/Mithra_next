@@ -2,15 +2,15 @@
 
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { 
-  LayoutDashboard, 
-  Users, 
-  Settings, 
-  LogOut, 
-  X, 
-  ShoppingCart, 
-  Package, 
-  MapPin, 
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  LogOut,
+  X,
+  ShoppingCart,
+  Package,
+  MapPin,
   Target,
   Building2,
   BarChart3,
@@ -140,8 +140,8 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
                     variant={isActive ? "default" : "ghost"}
                     className={cn(
                       "w-full justify-start h-12 px-3 transition-all duration-200",
-                      isActive 
-                        ? "bg-blue-600 text-white shadow-md hover:bg-blue-700" 
+                      isActive
+                        ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
                         : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                     )}
                     onClick={() => navigateTo(item.href)}
