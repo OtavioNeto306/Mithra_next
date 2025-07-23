@@ -7,43 +7,30 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const query = `
       SELECT
-        i.CLIENTE AS codigoCliente,
-        i.VALOR AS valorPedido,
-        i.DOCUMENTO AS documentoPedido,
-        c.NUMERO AS numeroCabPdv,
-        c.CHAVE AS chaveCabPdv,
-        c.CLIENTE AS clienteCabPdv,
-        c.VALOR AS valorTotalCabPdv,
-        c.EMISSAO AS emissaoCabPdv,
-        c.OBSERV AS observacaoCabPdv
+        i.CLIENTE AS cliente,
+        i.DOCUMENTO AS documento,
+        i.VALOR AS valor,
+        cl.ENDERECO AS endereco,
+        cl.MUNICIPIO AS municipio,
+        cl.ESTADO AS estado,
+        cl.BAIRRO AS bairro,
+        cl.CEP AS cep,
+        cl.FONE002 AS telefone
       FROM
         itecar i
+      JOIN
+        cargas c ON i.CODIGO = c.CODIGO
       LEFT JOIN
-        cabpdv c ON i.DOCUMENTO = c.NUMERO
+        client cl ON i.CLIENTE = cl.CODIGO
       WHERE
-        i.CODIGO = ?;
+        c.CODIGO = ?;
     `;
     let pedidos = await executeQuery(query, [id]);
 
-    // Para cada pedido, buscar seus itens
-    pedidos = await Promise.all(pedidos.map(async (pedido: any) => {
-      const itensQuery = `
-        SELECT
-          i.ORDEM,
-          i.PRODUTO AS codigoProduto,
-          p.DESCRICAO AS nomeProduto,
-          p.UNIDADE AS unidadeProduto,
-          i.QUANT AS quantidade,
-          i.VALUNIT AS valorUnitario,
-          i.TOTAL AS totalItem,
-          i.PERDSC AS descontoItem
-        FROM itepdv i
-        LEFT JOIN produt p ON i.PRODUTO = p.CODIGO
-        WHERE i.CHAVE = ?
-        ORDER BY i.ORDEM;
-      `;
-      const itens = await executeQuery(itensQuery, [pedido.chaveCabPdv]);
-      return { ...pedido, itens };
+    // Garantir que o valor seja um número
+    pedidos = pedidos.map((pedido: any) => ({
+      ...pedido,
+      valor: parseFloat(pedido.valor)
     }));
 
     return NextResponse.json(pedidos);
