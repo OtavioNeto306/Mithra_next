@@ -10,22 +10,31 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, FileDown, Filter, Plus, Search, RefreshCw, AlertCircle } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from '@/components/ui/dialog'
+import { Eye, FileDown, Filter, Plus, Search, RefreshCw, AlertCircle, Package } from "lucide-react"
 import Link from "next/link"
 import { usePedidos } from "@/hooks/usePedidos"
 
 export default function PedidosPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("todos")
+  const [showProductsModal, setShowProductsModal] = useState(false)
+  const [currentPedidoProdutos, setCurrentPedidoProdutos] = useState<any[]>([])
   const { toast } = useToast()
   
-  const { 
-    pedidos, 
-    loading, 
-    error, 
-    pagination, 
-    fetchPedidos, 
-    refetch 
+  const {
+    pedidos,
+    loading,
+    error,
+    pagination,
+    fetchPedidos,
+    refetch
   } = usePedidos()
 
   // Formatar data para exibição
@@ -175,11 +184,10 @@ export default function PedidosPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Código</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Forma Pagamento</TableHead>
                     <TableHead>Data Emissão</TableHead>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Vendedor</TableHead>
                     <TableHead>Valor</TableHead>
-                    <TableHead>Tipo</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
@@ -204,6 +212,7 @@ export default function PedidosPage() {
                     pedidos.map((pedido) => (
                       <TableRow key={pedido.chave}>
                         <TableCell className="font-medium">{pedido.numero}</TableCell>
+                        <TableCell>{formatarData(pedido.emissao)}</TableCell>
                         <TableCell>
                           <div>
                             <div className="font-medium">{pedido.cliente.nome}</div>
@@ -213,30 +222,38 @@ export default function PedidosPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div>
-                            <div className="font-medium">{pedido.formaPagamento.descricao}</div>
-                            <div className="text-sm text-muted-foreground">
-                              Cód: {pedido.formaPagamento.codigo}
-                            </div>
-                          </div>
+                          {pedido.vendedor ? (
+                            <div className="font-medium">{pedido.vendedor}</div>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
                         </TableCell>
-                        <TableCell>{formatarData(pedido.emissao)}</TableCell>
                         <TableCell>{formatarValor(pedido.valor)}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{pedido.tipo}</Badge>
-                        </TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(pedido.status)}>
                             {pedido.status.charAt(0).toUpperCase() + pedido.status.slice(1)}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/pedidos/${pedido.chave}`}>
-                              <Eye className="h-4 w-4" />
-                              <span className="sr-only">Ver detalhes</span>
-                            </Link>
-                          </Button>
+                          <div className="flex items-center justify-end gap-2">
+                            <Button variant="ghost" size="icon" asChild>
+                              <Link href={`/pedidos/${pedido.chave}`}>
+                                <Eye className="h-4 w-4" />
+                                <span className="sr-only">Ver detalhes</span>
+                              </Link>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setCurrentPedidoProdutos(pedido.itens);
+                                setShowProductsModal(true);
+                              }}
+                            >
+                              <Package className="h-4 w-4 mr-2" />
+                              Produtos
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -249,14 +266,14 @@ export default function PedidosPage() {
             {pagination.totalPages > 1 && (
               <div className="mt-4 flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  Página {pagination.page} de {pagination.totalPages} 
+                  Página {pagination.page} de {pagination.totalPages}
                   • {pagination.total} orçamentos no total
                 </div>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => fetchPedidos({ 
+                    onClick={() => fetchPedidos({
                       page: pagination.page - 1,
                       search: searchTerm || undefined,
                       status: statusFilter !== "todos" ? statusFilter : undefined,
@@ -268,7 +285,7 @@ export default function PedidosPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => fetchPedidos({ 
+                    onClick={() => fetchPedidos({
                       page: pagination.page + 1,
                       search: searchTerm || undefined,
                       status: statusFilter !== "todos" ? statusFilter : undefined,
@@ -283,6 +300,51 @@ export default function PedidosPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modal de Produtos */}
+      <Dialog open={showProductsModal} onOpenChange={setShowProductsModal}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Produtos do Orçamento</DialogTitle>
+            <DialogDescription>
+              Lista de produtos associados a este orçamento.
+            </DialogDescription>
+          </DialogHeader>
+          {currentPedidoProdutos.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Nenhum produto encontrado para este orçamento.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Produto</TableHead>
+                    <TableHead>Quantidade</TableHead>
+                    <TableHead>Valor Unitário</TableHead>
+                    <TableHead>Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {currentPedidoProdutos.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <div className="font-medium">{item.produto.descricao}</div>
+                        <div className="text-sm text-muted-foreground">
+                          Código: {item.produto.codigo}
+                        </div>
+                      </TableCell>
+                      <TableCell>{item.quantidade}</TableCell>
+                      <TableCell>{formatarValor(item.valorUnitario)}</TableCell>
+                      <TableCell>{formatarValor(item.total)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   )
 }

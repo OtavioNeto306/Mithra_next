@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { MainLayout } from "@/components/main-layout"
 import { Button } from "@/components/ui/button"
@@ -35,7 +35,10 @@ export default function PedidoDetalhesPage() {
   const router = useRouter()
   const { toast } = useToast()
   
-  const { pedido, loading, error, fetchPedido } = usePedidoDetalhe()
+  const { pedido, loading, error, fetchPedido } = usePedidoDetalhe();
+  const [currentStatus, setCurrentStatus] = useState(pedido?.status || "");
+
+  const DIAS_VALIDADE_ORCAMENTO = 30; // Dias de validade do orçamento
 
   useEffect(() => {
     if (!params || !params.id) {
@@ -43,14 +46,14 @@ export default function PedidoDetalhesPage() {
         title: "Erro",
         description: "Parâmetros inválidos.",
         variant: "destructive",
-      })
-      router.push("/pedidos")
-      return
+      });
+      router.push("/pedidos");
+      return;
     }
 
-    const id = Array.isArray(params.id) ? params.id[0] : params.id
-    fetchPedido(id)
-  }, [params, router, toast, fetchPedido])
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
+    fetchPedido(id);
+  }, [params, router, toast, fetchPedido]);
 
   useEffect(() => {
     if (error) {
@@ -58,82 +61,103 @@ export default function PedidoDetalhesPage() {
         title: "Erro ao carregar pedido",
         description: error,
         variant: "destructive",
-      })
+      });
     }
-  }, [error, toast])
+  }, [error, toast]);
+
+  useEffect(() => {
+    if (pedido) {
+      const dataEmissao = new Date(pedido.emissao);
+      const dataExpiracao = new Date(dataEmissao);
+      dataExpiracao.setDate(dataEmissao.getDate() + DIAS_VALIDADE_ORCAMENTO);
+      
+      const dataAtual = new Date();
+      dataAtual.setHours(0, 0, 0, 0); // Zera a hora para comparação apenas de data
+
+      if (pedido.status === "pendente" && dataAtual > dataExpiracao) {
+        setCurrentStatus("expirado");
+      } else {
+        setCurrentStatus(pedido.status);
+      }
+    }
+  }, [pedido]);
 
   // Formatar data para exibição
   const formatarData = (dataString: string) => {
     try {
-      const data = new Date(dataString)
-      return data.toLocaleDateString("pt-BR")
+      const data = new Date(dataString);
+      return data.toLocaleDateString("pt-BR");
     } catch {
-      return dataString
+      return dataString;
     }
-  }
+  };
 
   // Formatar valor para exibição
   const formatarValor = (valor: number) => {
     return valor.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
-    })
-  }
+    });
+  };
 
   // Cor do badge de acordo com o status
   const getStatusColor = (status: string) => {
     switch (status) {
       case "faturado":
-        return "bg-green-500"
+        return "bg-green-500";
       case "pendente":
-        return "bg-yellow-500"
+        return "bg-yellow-500";
       case "cancelado":
-        return "bg-red-500"
+        return "bg-red-500";
       case "em processamento":
-        return "bg-blue-500"
+        return "bg-blue-500";
+      case "expirado":
+        return "bg-purple-500"; // Cor para status expirado
       default:
-        return "bg-gray-500"
+        return "bg-gray-500";
     }
-  }
+  };
 
   // Ícone do status
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "faturado":
-        return <CheckCircle className="h-4 w-4" />
+        return <CheckCircle className="h-4 w-4" />;
       case "pendente":
-        return <Calendar className="h-4 w-4" />
+        return <Calendar className="h-4 w-4" />;
       case "cancelado":
-        return <XCircle className="h-4 w-4" />
+        return <XCircle className="h-4 w-4" />;
       case "em processamento":
-        return <Truck className="h-4 w-4" />
+        return <Truck className="h-4 w-4" />;
+      case "expirado":
+        return <AlertCircle className="h-4 w-4" />; // Ícone para status expirado
       default:
-        return <FileText className="h-4 w-4" />
+        return <FileText className="h-4 w-4" />;
     }
-  }
+  };
 
   // Ações do pedido
   const handlePrint = () => {
     toast({
       title: "Impressão iniciada",
       description: "O pedido está sendo enviado para impressão.",
-    })
-  }
+    });
+  };
 
   const handleFaturar = () => {
     toast({
       title: "Faturamento iniciado",
       description: "O pedido está sendo processado para faturamento.",
-    })
-  }
+    });
+  };
 
   const handleCancelar = () => {
     toast({
       title: "Cancelamento solicitado",
       description: "O pedido foi marcado para cancelamento.",
       variant: "destructive",
-    })
-  }
+    });
+  };
 
   if (loading) {
     return (
@@ -147,7 +171,7 @@ export default function PedidoDetalhesPage() {
           </div>
         </div>
       </MainLayout>
-    )
+    );
   }
 
   if (error || !pedido) {
@@ -174,7 +198,7 @@ export default function PedidoDetalhesPage() {
           </Alert>
         </div>
       </MainLayout>
-    )
+    );
   }
 
   return (
@@ -192,22 +216,28 @@ export default function PedidoDetalhesPage() {
                 Orçamento #{pedido.numero}
               </h1>
               <p className="text-muted-foreground">
-                Chave: {pedido.chave} • Emitido em {formatarData(pedido.emissao)}
+                Chave: {pedido.chave}
               </p>
             </div>
+            {currentStatus && (
+              <Badge className={`${getStatusColor(currentStatus)} text-white`}>
+                {getStatusIcon(currentStatus)}
+                <span className="ml-2">{currentStatus.toUpperCase()}</span>
+              </Badge>
+            )}
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
             </Button>
-            {pedido.status === "pendente" && (
+            {currentStatus === "pendente" && (
               <Button onClick={handleFaturar}>
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Faturar
               </Button>
             )}
-            {pedido.status !== "cancelado" && (
+            {currentStatus !== "cancelado" && (
               <Button variant="destructive" onClick={handleCancelar}>
                 <XCircle className="mr-2 h-4 w-4" />
                 Cancelar
@@ -216,28 +246,9 @@ export default function PedidoDetalhesPage() {
           </div>
         </div>
 
-        {/* Status do Pedido */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(pedido.status)}
-                <Badge className={`${getStatusColor(pedido.status)} text-white`}>
-                  {pedido.status.charAt(0).toUpperCase() + pedido.status.slice(1)}
-                </Badge>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold">{formatarValor(pedido.valor)}</div>
-                <div className="text-sm text-muted-foreground">Valor Total</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         <Tabs defaultValue="detalhes" className="space-y-4">
           <TabsList>
             <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
-            <TabsTrigger value="itens">Itens</TabsTrigger>
           </TabsList>
 
           <TabsContent value="detalhes" className="space-y-4">
@@ -358,60 +369,8 @@ export default function PedidoDetalhesPage() {
               </Card>
             </div>
           </TabsContent>
-
-          <TabsContent value="itens" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  Itens do Orçamento
-                </CardTitle>
-                <CardDescription>
-                  {pedido.itens.length} item(ns) no orçamento
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {pedido.itens.map((item) => (
-                    <div
-                      key={item.ordem}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium">{item.produto.descricao}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Código: {item.produto.codigo}
-                          {item.produto.grupo && ` • Grupo: ${item.produto.grupo}`}
-                          {item.produto.unidade && ` • Unidade: ${item.produto.unidade}`}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Ordem: {item.ordem}
-                          {item.cfop && ` • CFOP: ${item.cfop}`}
-                          {item.cst && ` • CST: ${item.cst}`}
-                        </div>
-                      </div>
-                      <div className="text-right space-y-1">
-                        <div className="font-medium">
-                          {item.quantidade}x {formatarValor(item.valorUnitario)}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          = {formatarValor(item.total)}
-                        </div>
-                        {item.desconto > 0 && (
-                          <div className="text-sm text-red-600">
-                            Desc: {formatarValor(item.desconto)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
         </Tabs>
       </div>
     </MainLayout>
-  )
+  );
 }
