@@ -51,7 +51,7 @@ export default function RootLayout({
         {/* Define o esquema de cores padrão para o navegador */}
         <meta name="color-scheme" content="light" />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning={true}>
         {/* Provedor de tema - Gerencia o tema claro/escuro */}
         <ThemeProvider
           attribute="class"
