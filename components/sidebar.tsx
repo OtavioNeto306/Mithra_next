@@ -77,6 +77,12 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
           href: "/gerencia",
           icon: UserCheck,
           description: "Gestão de comissões"
+        },
+        {
+          name: "Rotas",
+          href: "/rotas",
+          icon: MapPin,
+          description: "Visualização de rotas de vendas"
         }
       ]
     },
