@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog'
-import { Eye, FileDown, Filter, Plus, Search, RefreshCw, AlertCircle, Package } from "lucide-react"
+import { FileDown, Filter, Plus, Search, RefreshCw, AlertCircle, Package } from "lucide-react"
 import Link from "next/link"
 import { usePedidos } from "@/hooks/usePedidos"
 
@@ -236,12 +236,6 @@ export default function PedidosPage() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="icon" asChild>
-                              <Link href={`/pedidos/${pedido.chave}`}>
-                                <Eye className="h-4 w-4" />
-                                <span className="sr-only">Ver detalhes</span>
-                              </Link>
-                            </Button>
                             <Button
                               variant="outline"
                               size="sm"
