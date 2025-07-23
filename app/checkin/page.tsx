@@ -10,6 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from '@/components/ui/dialog';
 import { 
   Table, 
   TableBody, 
@@ -31,9 +38,10 @@ import {
   Calendar, 
   User, 
   Phone, 
-  Building, 
+  Building,
   Search,
-  RefreshCw
+  RefreshCw,
+  Package // Import Package icon
 } from 'lucide-react';
 
 export default function CheckinPage() {
@@ -45,6 +53,10 @@ export default function CheckinPage() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
+  const [showProductsModal, setShowProductsModal] = useState(false);
+  const [currentProducts, setCurrentProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [productsError, setProductsError] = useState('');
 
   const { checkinData, pagination, loading, error, refetch } = useCheckin(
     filters,
@@ -77,6 +89,28 @@ export default function CheckinPage() {
   const formatCoordinate = (coord: string) => {
     if (!coord || coord === '0' || coord === '0.0') return '-';
     return parseFloat(coord).toFixed(6);
+  };
+
+  interface Product {
+    PRODUTO: string;
+  }
+
+  const fetchProducts = async (chave: string) => {
+    setLoadingProducts(true);
+    setProductsError('');
+    try {
+      const response = await fetch(`/api/checkin/${chave}/produtos`);
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar produtos: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setCurrentProducts(data.data);
+      setShowProductsModal(true);
+    } catch (err: any) {
+      setProductsError(err.message);
+    } finally {
+      setLoadingProducts(false);
+    }
   };
 
   return (
@@ -239,12 +273,13 @@ export default function CheckinPage() {
                       <TableHead>Contato</TableHead>
                       <TableHead>Localização</TableHead>
                       <TableHead>Técnico</TableHead>
+                      <TableHead>Ações</TableHead> {/* Nova coluna para o botão */}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {checkinData.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8">
+                        <TableCell colSpan={6} className="text-center py-8"> {/* Colspan ajustado */}
                           <div className="flex flex-col items-center gap-2">
                             <Search className="h-8 w-8 text-muted-foreground" />
                             <p className="text-muted-foreground">Nenhum registro encontrado</p>
@@ -301,6 +336,16 @@ export default function CheckinPage() {
                               {item.TECNICO || '-'}
                             </Badge>
                           </TableCell>
+                          <TableCell> {/* Nova célula para o botão */}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => fetchProducts(String(item.CHAVE))}
+                            >
+                              <Package className="h-4 w-4 mr-2" />
+                              Produtos
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
@@ -341,6 +386,48 @@ export default function CheckinPage() {
           </CardContent>
         </Card>
       </div>
+      {/* Modal de Produtos */}
+      <Dialog open={showProductsModal} onOpenChange={setShowProductsModal}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Produtos do Checkin</DialogTitle>
+            <DialogDescription>
+              Lista de produtos associados a este registro de checkin.
+            </DialogDescription>
+          </DialogHeader>
+          {loadingProducts ? (
+            <div className="flex justify-center items-center h-32">
+              <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-muted-foreground">Carregando produtos...</span>
+            </div>
+          ) : productsError ? (
+            <Alert variant="destructive">
+              <AlertDescription>{productsError}</AlertDescription>
+            </Alert>
+          ) : currentProducts.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Nenhum produto encontrado para este checkin.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Produto</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {currentProducts.map((product: Product, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell>{product.PRODUTO}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
-} 
+}

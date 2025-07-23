@@ -238,7 +238,6 @@ export default function PedidoDetalhesPage() {
           <TabsList>
             <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
             <TabsTrigger value="itens">Itens</TabsTrigger>
-            <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
           </TabsList>
 
           <TabsContent value="detalhes" className="space-y-4">
@@ -411,71 +410,6 @@ export default function PedidoDetalhesPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="financeiro" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Forma de Pagamento */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4" />
-                    Forma de Pagamento
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div>
-                      <div className="font-medium">{pedido.formaPagamento.descricao}</div>
-                      <div className="text-sm text-muted-foreground">
-                        Código: {pedido.formaPagamento.codigo}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-medium">Condição</div>
-                      <div className="text-muted-foreground">{pedido.condicaoPagamento}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Resumo Financeiro */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4" />
-                    Resumo Financeiro
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Valor Mercadoria:</span>
-                      <span>{formatarValor(pedido.valorMercadoria)}</span>
-                    </div>
-                    {pedido.desconto > 0 && (
-                      <div className="flex justify-between text-red-600">
-                        <span>Desconto:</span>
-                        <span>-{formatarValor(pedido.desconto)}</span>
-                      </div>
-                    )}
-                    {pedido.frete > 0 && (
-                      <div className="flex justify-between">
-                        <span>Frete:</span>
-                        <span>{formatarValor(pedido.frete)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span>Valor Bruto:</span>
-                      <span>{formatarValor(pedido.valorBruto)}</span>
-                    </div>
-                    <div className="flex justify-between border-t pt-2 font-bold">
-                      <span>Total:</span>
-                      <span>{formatarValor(pedido.valor)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
         </Tabs>
       </div>
     </MainLayout>
