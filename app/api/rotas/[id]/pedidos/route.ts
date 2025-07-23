@@ -3,7 +3,8 @@ import { executeQuery } from '@/lib/db/mysql';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = params; // id aqui é o CODIGO da tabela cargas
+    const resolvedParams = await params;
+    const { id } = resolvedParams; // id aqui é o CODIGO da tabela cargas
 
     const query = `
       SELECT
