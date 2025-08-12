@@ -92,7 +92,12 @@ export default function CheckinPage() {
   };
 
   interface Product {
+    CHAVE: number;
+    ORDEM: number;
     PRODUTO: string;
+    DESCRICAO: string;
+    UNIDADE: string;
+    GRUPO: string;
   }
 
   const fetchProducts = async (chave: string) => {
@@ -413,13 +418,21 @@ export default function CheckinPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Produto</TableHead>
+                    <TableHead>Ordem</TableHead>
+                    <TableHead>Código</TableHead>
+                    <TableHead>Descrição</TableHead>
+                    <TableHead>Unidade</TableHead>
+                    <TableHead>Grupo</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {currentProducts.map((product: Product, index: number) => (
                     <TableRow key={index}>
+                      <TableCell>{product.ORDEM}</TableCell>
                       <TableCell>{product.PRODUTO}</TableCell>
+                      <TableCell>{product.DESCRICAO || 'N/A'}</TableCell>
+                      <TableCell>{product.UNIDADE || 'N/A'}</TableCell>
+                      <TableCell>{product.GRUPO || 'N/A'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
