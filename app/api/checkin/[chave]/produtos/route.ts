@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { chave: string } }
 ) {
   try {
-    const { chave } = params;
+    const { chave } = await params;
 
     if (!chave) {
       return NextResponse.json(
@@ -19,11 +19,16 @@ export async function GET(
 
     const query = `
       SELECT 
-       produto AS PRODUTO,
-       quantidade AS QUANTIDADE,
-       preco AS PRECO
-      FROM icheckin
-      WHERE CHAVE = ?
+        i.CHAVE,
+        i.ORDEM,
+        i.PRODUTO,
+        p.DESCRICAO,
+        p.UNIDADE,
+        p.GRUPO
+      FROM icheckin i
+      LEFT JOIN produt p ON i.PRODUTO = p.CODIGO
+      WHERE i.CHAVE = ?
+      ORDER BY i.ORDEM
     `;
     const productsData = await executeQuery(query, [chave]);
 

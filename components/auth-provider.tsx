@@ -5,8 +5,20 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 // Tipo para o usuário
 interface User {
   id: string
-  name: string
-  role: string
+  usuario: string
+  nome: string
+  email?: string
+  permissoes: {
+    checkin: boolean
+    rotas: boolean
+    dashboard: boolean
+    metas: boolean
+    pedidos: boolean
+    produtos: boolean
+    vendedores: boolean
+    configuracoes: boolean
+    gerencia: boolean
+  }
 }
 
 // Tipo para o contexto de autenticação
@@ -29,12 +41,7 @@ export function useAuth() {
   return context
 }
 
-// Usuário mockado para teste
-const MOCK_USER: User = {
-  id: "1",
-  name: "Administrador",
-  role: "admin",
-}
+
 
 // Componente Provider
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -59,15 +66,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Função de login
   const login = async (username: string, password: string): Promise<boolean> => {
-    // Simulando validação de credenciais
-    // Em um caso real, isso seria uma chamada à API
-    if (username === "admin" && password === "admin") {
-      setUser(MOCK_USER)
-      setIsAuthenticated(true)
-      localStorage.setItem("user", JSON.stringify(MOCK_USER))
-      return true
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          usuario: username,
+          senha: password,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUser(data.user)
+        setIsAuthenticated(true)
+        localStorage.setItem("user", JSON.stringify(data.user))
+        return true
+      } else {
+        const error = await response.json()
+        console.error('Erro no login:', error.error)
+        return false
+      }
+    } catch (error) {
+      console.error('Erro na requisição de login:', error)
+      return false
     }
-    return false
   }
 
   // Função de logout
