@@ -17,6 +17,7 @@ import {
   UserCheck
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/components/auth-provider"
 
 interface SidebarProps {
   onClose: () => void
@@ -26,78 +27,108 @@ interface SidebarProps {
 export function Sidebar({ onClose, onLogout }: SidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const { user } = useAuth()
 
-  const navItems = [
-    {
-      group: "Principal",
-      items: [
-        {
-          name: "Dashboard",
-          href: "/dashboard",
-          icon: LayoutDashboard,
-          description: "Visão geral do sistema"
-        }
-      ]
-    },
-    {
-      group: "Gestão Comercial",
-      items: [
-        {
-          name: "Orçamentos",
-          href: "/pedidos",
-          icon: ShoppingCart,
-          description: "Gerenciar orçamentos"
-        },
-        {
-          name: "Produtos",
-          href: "/produtos",
-          icon: Package,
-          description: "Catálogo de produtos"
-        },
+  // Função para filtrar itens baseado nas permissões do usuário
+  const getFilteredNavItems = () => {
+    if (!user) return []
 
-      ]
-    },
-    {
-      group: "Gestão de Equipe",
-      items: [
-        {
-          name: "Metas de Vendedores",
-          href: "/metas",
-          icon: Target,
-          description: "Definir metas mensais"
-        },
-        {
-          name: "Relatório de Checkin",
-          href: "/checkin",
-          icon: MapPin,
-          description: "Controle de presença"
-        },
-        {
-          name: "Gerência de Comissões",
-          href: "/gerencia",
-          icon: UserCheck,
-          description: "Gestão de comissões"
-        },
-        {
-          name: "Rotas",
-          href: "/rotas",
-          icon: MapPin,
-          description: "Visualização de rotas de vendas"
-        }
-      ]
-    },
-    {
-      group: "Sistema",
-      items: [
-        {
-          name: "Configurações",
-          href: "/configuracoes",
-          icon: Settings,
-          description: "Configurações do sistema"
-        }
-      ]
-    }
-  ]
+    const allNavItems = [
+      {
+        group: "Principal",
+        items: [
+          {
+            name: "Dashboard",
+            href: "/dashboard",
+            icon: LayoutDashboard,
+            description: "Visão geral do sistema",
+            permission: "dashboard"
+          }
+        ]
+      },
+      {
+        group: "Gestão Comercial",
+        items: [
+          {
+            name: "Orçamentos",
+            href: "/pedidos",
+            icon: ShoppingCart,
+            description: "Gerenciar orçamentos",
+            permission: "pedidos"
+          },
+          {
+            name: "Produtos",
+            href: "/produtos",
+            icon: Package,
+            description: "Catálogo de produtos",
+            permission: "produtos"
+          }
+        ]
+      },
+      {
+        group: "Gestão de Equipe",
+        items: [
+          {
+            name: "Metas de Vendedores",
+            href: "/metas",
+            icon: Target,
+            description: "Definir metas mensais",
+            permission: "metas"
+          },
+          {
+            name: "Relatório de Checkin",
+            href: "/checkin",
+            icon: MapPin,
+            description: "Controle de presença",
+            permission: "checkin"
+          },
+          {
+            name: "Gerência de Comissões",
+            href: "/gerencia",
+            icon: UserCheck,
+            description: "Gestão de comissões",
+            permission: "gerencia"
+          },
+          {
+            name: "Rotas",
+            href: "/rotas",
+            icon: MapPin,
+            description: "Visualização de rotas de vendas",
+            permission: "rotas"
+          }
+        ]
+      },
+      {
+        group: "Sistema",
+        items: [
+          {
+            name: "Usuários",
+            href: "/usuarios",
+            icon: Users,
+            description: "Gerenciar usuários e permissões",
+            permission: "vendedores"
+          },
+          {
+            name: "Configurações",
+            href: "/configuracoes",
+            icon: Settings,
+            description: "Configurações do sistema",
+            permission: "configuracoes"
+          }
+        ]
+      }
+    ]
+
+    // Filtrar grupos e itens baseado nas permissões
+    return allNavItems.map(group => ({
+      ...group,
+      items: group.items.filter(item => 
+        user.permissoes[item.permission as keyof typeof user.permissoes]
+      )
+    })).filter(group => group.items.length > 0)
+  }
+
+  const navItems = getFilteredNavItems()
 
   // Função para navegar para uma rota
   const navigateTo = (path: string) => {
