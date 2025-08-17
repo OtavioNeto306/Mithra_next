@@ -148,63 +148,7 @@ const MapaTrajetoriaPage: React.FC = () => {
         altura="700px"
       />
 
-      {/* Informações Adicionais */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center space-x-2">
-              <MapPin className="h-5 w-5 text-blue-600" />
-              <span>Legenda do Mapa</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <div className="w-4 h-4 rounded-full bg-blue-500"></div>
-              <span className="text-sm">Check-ins regulares</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-5 h-5 rounded-full bg-blue-500 border-2 border-white shadow-lg"></div>
-              <span className="text-sm">Último check-in do técnico</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-1 bg-blue-500 rounded"></div>
-              <span className="text-sm">Trajetória do técnico</span>
-            </div>
-            <div className="text-xs text-gray-500 mt-3">
-              <p>• Cada técnico possui uma cor diferente</p>
-              <p>• Clique nos marcadores para ver detalhes</p>
-              <p>• Use os filtros para personalizar a visualização</p>
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center space-x-2">
-              <Info className="h-5 w-5 text-green-600" />
-              <span>Funcionalidades</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-2 text-sm">
-              <p><strong>✓ Visualização em tempo real</strong></p>
-              <p className="text-gray-600 ml-4">Atualizações automáticas a cada 30 segundos</p>
-              
-              <p><strong>✓ Filtros avançados</strong></p>
-              <p className="text-gray-600 ml-4">Por técnico, período, cliente</p>
-              
-              <p><strong>✓ Trajetória conectada</strong></p>
-              <p className="text-gray-600 ml-4">Linha conectando check-ins em ordem cronológica</p>
-              
-              <p><strong>✓ Informações detalhadas</strong></p>
-              <p className="text-gray-600 ml-4">Dados completos de cada check-in</p>
-              
-              <p><strong>✓ Interface responsiva</strong></p>
-              <p className="text-gray-600 ml-4">Funciona em desktop e mobile</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
       </div>
     </MainLayout>
   );
