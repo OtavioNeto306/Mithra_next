@@ -3,7 +3,7 @@ import { executeQuery } from '@/lib/db/mysql';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { chave: string } }
+  { params }: { params: Promise<{ chave: string }> }
 ) {
   try {
     const { chave } = await params;

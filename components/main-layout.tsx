@@ -119,10 +119,10 @@ export function MainLayout({ children }: MainLayoutProps) {
                 </div>
                 <div className="text-sm">
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {user?.name || 'Usuário'}
+                    {user?.nome || 'Usuário'}
                   </p>
                   <p className="text-gray-500 dark:text-gray-400">
-                    {user?.role || 'Administrador'}
+                    {user?.usuario || 'Administrador'}
                   </p>
                 </div>
               </div>
