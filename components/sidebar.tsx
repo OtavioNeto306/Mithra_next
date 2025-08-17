@@ -14,7 +14,8 @@ import {
   Target,
   Building2,
   BarChart3,
-  UserCheck
+  UserCheck,
+  Route
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/components/auth-provider"
@@ -95,6 +96,13 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
             icon: MapPin,
             description: "Visualização de rotas de vendas",
             permission: "rotas"
+          },
+          {
+            name: "Mapa de Trajetória",
+            href: "/mapa-trajetoria",
+            icon: Route,
+            description: "Trajetória dos técnicos em tempo real",
+            permission: "checkin"
           }
         ]
       },

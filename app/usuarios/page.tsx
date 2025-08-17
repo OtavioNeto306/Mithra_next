@@ -136,7 +136,7 @@ export default function UsuariosPage() {
     setSubmitting(true)
 
     try {
-      const payload = {
+      const payload: any = {
         ...formData,
         ativo: formData.ativo ? 1 : 0,
         permissao_checkin: formData.permissao_checkin ? 1 : 0,
