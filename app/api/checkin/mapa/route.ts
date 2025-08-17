@@ -71,7 +71,16 @@ export async function GET(request: NextRequest) {
 
     query += ' ORDER BY DATA, HORA';
 
-    const result = await executeQuery(query, params) as CheckinMapaData[];
+    const rawResult = await executeQuery(query, params) as any[];
+
+    // Converter coordenadas para números
+    const result: CheckinMapaData[] = rawResult.map(row => ({
+      ...row,
+      LAT: parseFloat(row.LAT),
+      LNG: parseFloat(row.LNG)
+    }));
+
+    // console.log('API: dados processados', result.length, 'registros');
 
     // Agrupar por técnico para facilitar a criação de trajetórias
     const trajetoriasPorTecnico = result.reduce((acc, checkin) => {

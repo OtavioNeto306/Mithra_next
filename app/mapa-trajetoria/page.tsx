@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { MainLayout } from '@/components/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MapPin, AlertTriangle, Info } from 'lucide-react';
-import MapaTrajetoria from '@/components/mapa/MapaTrajetoria';
+import MapaTrajetoriaLeaflet from '@/components/mapa/MapaTrajetoriaLeaflet';
 import FiltrosMapa from '@/components/mapa/FiltrosMapa';
 
 interface FiltrosMapaInterface {
@@ -22,9 +23,9 @@ interface Tecnico {
 
 const MapaTrajetoriaPage: React.FC = () => {
   const [filtros, setFiltros] = useState<FiltrosMapaInterface>({
-    // Filtros padrão para mostrar dados dos últimos 7 dias
-    dataInicio: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    dataFim: new Date().toISOString().split('T')[0]
+    // Filtros padrão para mostrar dados de julho de 2025 (onde há dados de teste)
+    dataInicio: '2025-07-01',
+    dataFim: '2025-07-31'
   });
   const [tecnicos, setTecnicos] = useState<Tecnico[]>([]);
   const [loadingTecnicos, setLoadingTecnicos] = useState(true);
@@ -74,7 +75,8 @@ const MapaTrajetoriaPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <MainLayout>
+      <div className="container mx-auto p-6 space-y-6">
       {/* Cabeçalho */}
       <div className="flex items-center space-x-3">
         <MapPin className="h-8 w-8 text-blue-600" />
@@ -88,16 +90,7 @@ const MapaTrajetoriaPage: React.FC = () => {
 
       {/* Alertas e Informações */}
       <div className="space-y-4">
-        {/* Alerta sobre API Key */}
-        {!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Configuração necessária:</strong> A chave da API do Google Maps não está configurada. 
-              Adicione NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ao arquivo .env para utilizar o mapa.
-            </AlertDescription>
-          </Alert>
-        )}
+
 
         {/* Informações sobre o sistema */}
         <Alert>
@@ -147,7 +140,7 @@ const MapaTrajetoriaPage: React.FC = () => {
       )}
 
       {/* Mapa Principal */}
-      <MapaTrajetoria
+      <MapaTrajetoriaLeaflet
         tecnico={filtros.tecnico}
         dataInicio={filtros.dataInicio}
         dataFim={filtros.dataFim}
@@ -212,7 +205,8 @@ const MapaTrajetoriaPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </MainLayout>
   );
 };
 

@@ -55,6 +55,11 @@ export function useMapaTrajetoria(filtrosIniciais: FiltrosMapa = {}): UseMapaTra
   const [ultimoCheckin, setUltimoCheckin] = useState<CheckinMapaData | null>(null);
   const [atualizacaoAutomatica, setAtualizacaoAutomatica] = useState(false);
 
+  // Sincronizar filtros internos com filtros recebidos como props
+  useEffect(() => {
+    setFiltros(filtrosIniciais);
+  }, [filtrosIniciais.tecnico, filtrosIniciais.dataInicio, filtrosIniciais.dataFim, filtrosIniciais.cliente]);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -78,7 +83,6 @@ export function useMapaTrajetoria(filtrosIniciais: FiltrosMapa = {}): UseMapaTra
       if (!result.success) {
         throw new Error(result.error || 'Erro desconhecido');
       }
-
       setData(result.data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar dados do mapa';
