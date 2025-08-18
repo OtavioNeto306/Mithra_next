@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       FROM
         cargas c
       LEFT JOIN
-        VENDED v ON c.VENDEDOR = v.CODIGO
+        vended v ON c.VENDEDOR = v.CODIGO
       ORDER BY
         c.DATA DESC;
     `;
