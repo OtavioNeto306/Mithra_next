@@ -146,8 +146,12 @@ const MapaTrajetoriaLeaflet: React.FC<MapaTrajetoriaLeafletProps> = ({
       // Preparar marcadores
       checkins.forEach((checkin, checkinIndex) => {
         // Validar coordenadas
-        const lat = parseFloat(String(checkin.LAT));
-        const lng = parseFloat(String(checkin.LNG));
+        if (!checkin.LAT || !checkin.LNG) {
+          return;
+        }
+        
+        const lat = typeof checkin.LAT === 'number' ? checkin.LAT : parseFloat(String(checkin.LAT));
+        const lng = typeof checkin.LNG === 'number' ? checkin.LNG : parseFloat(String(checkin.LNG));
         
         if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
           return;
@@ -168,8 +172,12 @@ const MapaTrajetoriaLeaflet: React.FC<MapaTrajetoriaLeafletProps> = ({
       if (checkins.length > 1) {
         const positions = checkins
           .map(checkin => {
-            const lat = parseFloat(checkin.LAT);
-            const lng = parseFloat(checkin.LNG);
+            if (!checkin.LAT || !checkin.LNG) {
+              return { lat: 0, lng: 0, valid: false };
+            }
+            
+            const lat = typeof checkin.LAT === 'number' ? checkin.LAT : parseFloat(String(checkin.LAT));
+            const lng = typeof checkin.LNG === 'number' ? checkin.LNG : parseFloat(String(checkin.LNG));
             return { lat, lng, valid: !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0 };
           })
           .filter(pos => pos.valid)
@@ -190,20 +198,33 @@ const MapaTrajetoriaLeaflet: React.FC<MapaTrajetoriaLeafletProps> = ({
     let bounds: [[number, number], [number, number]] | null = null;
 
     if (data.checkins.length > 0) {
-      const lats = data.checkins.map(c => c.LAT);
-      const lngs = data.checkins.map(c => c.LNG);
+      const lats = data.checkins
+        .map(c => {
+          if (!c.LAT) return null;
+          return typeof c.LAT === 'number' ? c.LAT : parseFloat(String(c.LAT));
+        })
+        .filter(lat => lat !== null && !isNaN(lat)) as number[];
+        
+      const lngs = data.checkins
+        .map(c => {
+          if (!c.LNG) return null;
+          return typeof c.LNG === 'number' ? c.LNG : parseFloat(String(c.LNG));
+        })
+        .filter(lng => lng !== null && !isNaN(lng)) as number[];
       
-      const minLat = Math.min(...lats);
-      const maxLat = Math.max(...lats);
-      const minLng = Math.min(...lngs);
-      const maxLng = Math.max(...lngs);
-      
-      centro = {
-        lat: (minLat + maxLat) / 2,
-        lng: (minLng + maxLng) / 2
-      };
-      
-      bounds = [[minLat, minLng], [maxLat, maxLng]];
+      if (lats.length > 0 && lngs.length > 0) {
+        const minLat = Math.min(...lats);
+        const maxLat = Math.max(...lats);
+        const minLng = Math.min(...lngs);
+        const maxLng = Math.max(...lngs);
+        
+        centro = {
+          lat: (minLat + maxLat) / 2,
+          lng: (minLng + maxLng) / 2
+        };
+        
+        bounds = [[minLat, minLng], [maxLat, maxLng]];
+      }
     }
 
     return {
