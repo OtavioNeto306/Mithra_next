@@ -23,8 +23,8 @@ function createPool(): mysql.Pool {
       dateStrings: false,
       multipleStatements: false,
       
-      // Configurações de SSL e segurança
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+      // Configurações de SSL e segurança - Controlado via variável de ambiente
+      ssl: process.env.MYSQL_SSL_ENABLED === 'true' ? { rejectUnauthorized: false } : false
     };
 
     pool = mysql.createPool(poolConfig);
@@ -90,4 +90,4 @@ export async function closePool(): Promise<void> {
     await pool.end();
     pool = null;
   }
-} 
+}
