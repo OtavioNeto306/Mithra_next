@@ -23,7 +23,7 @@ const produtosMock: Produto[] = [
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const search = searchParams.get('search') || '';
+    const search = searchParams.get('q') || searchParams.get('search') || '';
     
     // Query para buscar produtos no Oracle via ODBC
     // Usando a estrutura correta da tabela PRODSERV

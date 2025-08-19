@@ -44,6 +44,7 @@ export function ProdutoSearch({
         setHasConnectionError(false);
         
         try {
+          console.log('Fazendo requisição para:', `/api/produtos/search?q=${encodeURIComponent(searchTerm.trim())}`);
           const response = await fetch(`/api/produtos/search?q=${encodeURIComponent(searchTerm.trim())}`);
           
           if (!response.ok) {
@@ -51,9 +52,12 @@ export function ProdutoSearch({
           }
           
           const data = await response.json();
+          console.log('Dados recebidos da API:', data);
           
           if (data.success) {
+            console.log('Produtos encontrados:', data.data?.length || 0);
             setProdutos(data.data || []);
+            setShowDropdown(true);
           } else {
             console.error('Erro ao carregar produtos:', data.error);
             setProdutos([]);
@@ -143,7 +147,6 @@ export function ProdutoSearch({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value || '';
     setSearchTerm(newValue);
-    setShowDropdown(true);
     setSelectedIndex(-1);
     
     // Se o campo foi limpo, limpar a seleção
@@ -153,7 +156,7 @@ export function ProdutoSearch({
   };
 
   const handleInputFocus = () => {
-    if (searchTerm && searchTerm.trim()) {
+    if (searchTerm && searchTerm.trim() && produtos.length > 0) {
       setShowDropdown(true);
     }
   };
@@ -207,33 +210,36 @@ export function ProdutoSearch({
           className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
         >
           {produtos.length > 0 ? (
-            produtos.map((produto, index) => (
-              <div
-                key={produto.codigo}
-                className={cn(
-                  "px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0",
-                  "hover:bg-gray-50 transition-colors",
-                  selectedIndex === index && "bg-blue-50 border-blue-200"
-                )}
-                onClick={() => handleSelectProduto(produto)}
-              >
-                <div className="flex flex-col">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-gray-900">
-                      {produto.nome}
-                    </span>
-                    <span className="text-sm text-gray-500 ml-2">
-                      {produto.codigo}
-                    </span>
-                  </div>
-                  {produto.descricao && (
-                    <span className="text-sm text-gray-600 mt-1">
-                      {produto.descricao}
-                    </span>
+            produtos.map((produto, index) => {
+              console.log('Renderizando produto:', produto);
+              return (
+                <div
+                  key={produto.codigo}
+                  className={cn(
+                    "px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0",
+                    "hover:bg-gray-50 transition-colors",
+                    selectedIndex === index && "bg-blue-50 border-blue-200"
                   )}
+                  onClick={() => handleSelectProduto(produto)}
+                >
+                  <div className="flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-gray-900">
+                        {produto.nome}
+                      </span>
+                      <span className="text-sm text-gray-500 ml-2">
+                        {produto.codigo}
+                      </span>
+                    </div>
+                    {produto.descricao && (
+                      <span className="text-sm text-gray-600 mt-1">
+                        {produto.descricao}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="px-4 py-2 text-gray-500 text-center">
               {isLoading ? (
