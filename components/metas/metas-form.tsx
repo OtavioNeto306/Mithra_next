@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { MetaCreate, MetaUpdate } from "@/types/metas";
 import { VendedorSearch } from "@/components/metas/vendedor-search";
+import { FornecedorSearch } from "@/components/metas/fornecedor-search";
+import { ProdutoSearch } from "@/components/metas/produto-search";
 
 interface MetasFormProps {
   meta?: MetaCreate | MetaUpdate;
@@ -32,12 +34,26 @@ export function MetasForm({ meta, onSubmit, onCancel, loading = false }: MetasFo
     observacoes: ''
   });
 
+  // Estados para os objetos selecionados
+  const [selectedFornecedor, setSelectedFornecedor] = useState<{codigo: string, nome: string} | null>(null);
+  const [selectedProduto, setSelectedProduto] = useState<{codigo: string, nome: string} | null>(null);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Inicializar formulário com dados da meta se for edição
   useEffect(() => {
     if (meta) {
       setFormData(prev => ({ ...prev, ...meta }));
+      
+      // Inicializar objetos selecionados se for edição
+      if (meta.tipo_meta === 'fornecedor' && meta.codigo_fornecedor) {
+        // Para edição, criar um objeto temporário com o código
+        setSelectedFornecedor({ codigo: meta.codigo_fornecedor, nome: `Fornecedor ${meta.codigo_fornecedor}` });
+      }
+      if (meta.tipo_meta === 'produto' && meta.codigo_produto) {
+        // Para edição, criar um objeto temporário com o código
+        setSelectedProduto({ codigo: meta.codigo_produto, nome: `Produto ${meta.codigo_produto}` });
+      }
     }
   }, [meta]);
 
@@ -117,6 +133,18 @@ export function MetasForm({ meta, onSubmit, onCancel, loading = false }: MetasFo
   // Manipular mudanças nos campos
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Limpar campos relacionados quando tipo de meta for alterado
+    if (field === 'tipo_meta') {
+      setSelectedFornecedor(null);
+      setSelectedProduto(null);
+      setFormData(prev => ({ 
+        ...prev, 
+        [field]: value,
+        codigo_fornecedor: '',
+        codigo_produto: ''
+      }));
+    }
     
     // Limpar erro do campo quando alterado
     if (errors[field]) {
@@ -219,16 +247,17 @@ export function MetasForm({ meta, onSubmit, onCancel, loading = false }: MetasFo
             )}
           </div>
 
-          {/* Código do Fornecedor ou Produto */}
+          {/* Busca de Fornecedor ou Produto */}
           {formData.tipo_meta === 'fornecedor' && (
             <div className="space-y-2">
-              <Label htmlFor="codigo_fornecedor">Código do Fornecedor *</Label>
-              <Input
-                id="codigo_fornecedor"
-                type="text"
-                value={formData.codigo_fornecedor || ''}
-                onChange={(e) => handleChange('codigo_fornecedor', e.target.value)}
-                placeholder="Digite o código do fornecedor"
+              <Label htmlFor="fornecedor">Fornecedor *</Label>
+              <FornecedorSearch
+                value={selectedFornecedor}
+                onChange={(fornecedor) => {
+                  setSelectedFornecedor(fornecedor);
+                  handleChange('codigo_fornecedor', fornecedor?.codigo || '');
+                }}
+                placeholder="Buscar fornecedor..."
                 disabled={loading}
                 className={errors.codigo_fornecedor ? 'border-red-500' : ''}
               />
@@ -240,13 +269,14 @@ export function MetasForm({ meta, onSubmit, onCancel, loading = false }: MetasFo
 
           {formData.tipo_meta === 'produto' && (
             <div className="space-y-2">
-              <Label htmlFor="codigo_produto">Código do Produto *</Label>
-              <Input
-                id="codigo_produto"
-                type="text"
-                value={formData.codigo_produto || ''}
-                onChange={(e) => handleChange('codigo_produto', e.target.value)}
-                placeholder="Digite o código do produto"
+              <Label htmlFor="produto">Produto *</Label>
+              <ProdutoSearch
+                value={selectedProduto}
+                onChange={(produto) => {
+                  setSelectedProduto(produto);
+                  handleChange('codigo_produto', produto?.codigo || '');
+                }}
+                placeholder="Buscar produto..."
                 disabled={loading}
                 className={errors.codigo_produto ? 'border-red-500' : ''}
               />
@@ -311,4 +341,4 @@ export function MetasForm({ meta, onSubmit, onCancel, loading = false }: MetasFo
       </CardContent>
     </Card>
   );
-} 
+}
