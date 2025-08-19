@@ -61,8 +61,8 @@ export function FornecedorSearch({
 
   // Filtrar fornecedores baseado no termo de busca
   const filteredFornecedores = fornecedores.filter(fornecedor =>
-    fornecedor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    fornecedor.codigo.toLowerCase().includes(searchTerm.toLowerCase())
+    (fornecedor.nome && fornecedor.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (fornecedor.codigo && fornecedor.codigo.toLowerCase().includes(searchTerm.toLowerCase()))
   ).slice(0, 10); // Limitar a 10 resultados
 
   // Fechar dropdown quando clicar fora
