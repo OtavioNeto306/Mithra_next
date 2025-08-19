@@ -56,7 +56,14 @@ export function ProdutoSearch({
           
           if (data.success) {
             console.log('Produtos encontrados:', data.data?.length || 0);
-            setProdutos(data.data || []);
+            // Mapear os dados para o formato esperado pelo componente
+            const produtosMapeados = (data.data || []).map((produto: any) => ({
+              codigo: produto.CODIGO || produto.codigo || '',
+              nome: produto.NOME || produto.nome || '',
+              descricao: produto.DESCRICAO || produto.descricao || ''
+            }));
+            console.log('Produtos mapeados:', produtosMapeados);
+            setProdutos(produtosMapeados);
             setShowDropdown(true);
           } else {
             console.error('Erro ao carregar produtos:', data.error);
@@ -214,7 +221,7 @@ export function ProdutoSearch({
               console.log('Renderizando produto:', produto);
               return (
                 <div
-                  key={produto.codigo}
+                  key={produto.codigo || `produto-${index}`}
                   className={cn(
                     "px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0",
                     "hover:bg-gray-50 transition-colors",
