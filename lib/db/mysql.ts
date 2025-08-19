@@ -24,7 +24,7 @@ function createPool(): mysql.Pool {
       multipleStatements: false,
       
       // Configurações de SSL e segurança - Controlado via variável de ambiente
-      ssl: process.env.MYSQL_SSL_ENABLED === 'true' ? { rejectUnauthorized: false } : false
+      ssl: process.env.MYSQL_SSL_ENABLED === 'true' ? { rejectUnauthorized: false } : undefined
     };
 
     pool = mysql.createPool(poolConfig);
