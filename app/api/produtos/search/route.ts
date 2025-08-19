@@ -6,6 +6,20 @@ interface Produto {
   nome: string;
 }
 
+// Dados mockados para fallback quando não há conexão com Oracle
+const produtosMock: Produto[] = [
+  { codigo: '0000001', nome: 'Banheira Hidromassagem Premium' },
+  { codigo: '0000002', nome: 'Bancada de Granito Preto' },
+  { codigo: '0000003', nome: 'Bandeja Decorativa Madeira' },
+  { codigo: '0000004', nome: 'Banco de Jardim Ferro' },
+  { codigo: '0000005', nome: 'Banqueta Alta Aço Inox' },
+  { codigo: '0000006', nome: 'Colchão Ortopédico Queen' },
+  { codigo: '0000007', nome: 'Mesa de Centro Vidro' },
+  { codigo: '0000008', nome: 'Cadeira Escritório Ergonômica' },
+  { codigo: '0000009', nome: 'Sofá 3 Lugares Couro' },
+  { codigo: '0000010', nome: 'Estante Livros MDF' }
+];
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -42,16 +56,36 @@ export async function GET(req: NextRequest) {
     console.log('Executando query de produtos:', query);
     console.log('Parâmetros:', params);
     
-    const result = await executeQuery(query, params) as Produto[];
-    
-    if (!result || !Array.isArray(result)) {
-      throw new Error('Resultado da query inválido');
+    try {
+      const result = await executeQuery(query, params) as Produto[];
+      
+      if (!result || !Array.isArray(result)) {
+        throw new Error('Resultado da query inválido');
+      }
+      
+      return NextResponse.json({
+        success: true,
+        data: result
+      });
+    } catch (dbError) {
+      console.warn('Erro de conexão com Oracle, usando dados mockados:', dbError);
+      
+      // Fallback: usar dados mockados quando não há conexão
+      const searchTerm = search.toLowerCase().trim();
+      const filteredProducts = searchTerm 
+        ? produtosMock.filter(produto => 
+            produto.nome.toLowerCase().includes(searchTerm) ||
+            produto.codigo.toLowerCase().includes(searchTerm)
+          )
+        : produtosMock.slice(0, 10);
+      
+      return NextResponse.json({
+        success: true,
+        data: filteredProducts,
+        fallback: true,
+        message: 'Usando dados de demonstração (sem conexão Oracle)'
+      });
     }
-    
-    return NextResponse.json({
-      success: true,
-      data: result
-    });
   } catch (error) {
     console.error('Erro ao buscar produtos:', error);
     return NextResponse.json({
