@@ -32,20 +32,28 @@ export function ProdutoSearch({
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [hasConnectionError, setHasConnectionError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Carregar produtos com busca dinâmica
   useEffect(() => {
     const loadProdutos = async () => {
       if (!searchTerm || !searchTerm.trim()) {
         setProdutos([]);
+        setHasConnectionError(false);
         return;
       }
 
       try {
         setIsLoading(true);
+        setHasConnectionError(false);
         const response = await fetch(`/api/produtos/search?search=${encodeURIComponent(searchTerm)}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
         
         if (data.success) {
@@ -53,10 +61,14 @@ export function ProdutoSearch({
         } else {
           console.error('Erro ao carregar produtos:', data.error);
           setProdutos([]);
+          if (data.error && data.error.includes('conexão')) {
+            setHasConnectionError(true);
+          }
         }
       } catch (error) {
         console.error('Erro ao carregar produtos:', error);
         setProdutos([]);
+        setHasConnectionError(true);
       } finally {
         setIsLoading(false);
       }
@@ -219,7 +231,18 @@ export function ProdutoSearch({
             ))
           ) : (
             <div className="px-4 py-2 text-gray-500 text-center">
-              {isLoading ? 'Buscando produtos...' : searchTerm.length < 2 ? 'Digite pelo menos 2 caracteres' : 'Nenhum produto encontrado'}
+              {isLoading ? (
+                'Buscando produtos...'
+              ) : hasConnectionError ? (
+                <div className="text-red-500">
+                  <div className="font-medium">Erro de conexão</div>
+                  <div className="text-xs mt-1">Não foi possível conectar ao banco de dados</div>
+                </div>
+              ) : searchTerm.length < 2 ? (
+                'Digite pelo menos 2 caracteres'
+              ) : (
+                'Nenhum produto encontrado'
+              )}
             </div>
           )}
         </div>
