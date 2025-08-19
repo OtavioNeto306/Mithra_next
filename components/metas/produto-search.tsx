@@ -36,70 +36,68 @@ export function ProdutoSearch({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Carregar produtos com busca dinâmica
+  // Debounce para busca de produtos
   useEffect(() => {
-    const loadProdutos = async () => {
-      if (!searchTerm || !searchTerm.trim()) {
-        setProdutos([]);
-        setHasConnectionError(false);
-        return;
-      }
-
-      try {
+    const timeoutId = setTimeout(async () => {
+      if (searchTerm && searchTerm.trim().length >= 2) {
         setIsLoading(true);
         setHasConnectionError(false);
-        const response = await fetch(`/api/produtos/search?search=${encodeURIComponent(searchTerm)}`);
         
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          setProdutos(data.data || []);
-        } else {
-          console.error('Erro ao carregar produtos:', data.error);
-          setProdutos([]);
-          if (data.error && data.error.includes('conexão')) {
-            setHasConnectionError(true);
+        try {
+          const response = await fetch(`/api/produtos/search?q=${encodeURIComponent(searchTerm.trim())}`);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
           }
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            setProdutos(data.data || []);
+          } else {
+            console.error('Erro ao carregar produtos:', data.error);
+            setProdutos([]);
+            if (data.error && data.error.includes('conexão')) {
+              setHasConnectionError(true);
+            }
+          }
+        } catch (error) {
+          console.error('Erro na requisição:', error);
+          setProdutos([]);
+          setHasConnectionError(true);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error('Erro ao carregar produtos:', error);
+      } else {
         setProdutos([]);
-        setHasConnectionError(true);
-      } finally {
-        setIsLoading(false);
+        setShowDropdown(false);
       }
-    };
+    }, 300);
 
-    // Debounce para evitar muitas requisições
-    const timeoutId = setTimeout(loadProdutos, 300);
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [searchTerm]);
 
-  // Fechar dropdown quando clicar fora
+  // Fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+          inputRef.current && !inputRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
         setSelectedIndex(-1);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   // Navegação por teclado
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showDropdown) return;
+    if (!showDropdown || produtos.length === 0) return;
 
     switch (e.key) {
       case 'ArrowDown':
@@ -114,7 +112,7 @@ export function ProdutoSearch({
         break;
       case 'Enter':
         e.preventDefault();
-        if (selectedIndex >= 0 && produtos[selectedIndex]) {
+        if (selectedIndex >= 0 && selectedIndex < produtos.length) {
           handleSelectProduto(produtos[selectedIndex]);
         }
         break;
@@ -213,18 +211,25 @@ export function ProdutoSearch({
               <div
                 key={produto.codigo}
                 className={cn(
-                  "px-4 py-2 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0",
-                  selectedIndex === index && "bg-blue-50"
+                  "px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0",
+                  "hover:bg-gray-50 transition-colors",
+                  selectedIndex === index && "bg-blue-50 border-blue-200"
                 )}
                 onClick={() => handleSelectProduto(produto)}
               >
-                <div className="font-medium text-gray-900">
-                  {produto.nome}
-                </div>
-                <div className="text-sm text-gray-500">
-                  Código: {produto.codigo}
+                <div className="flex flex-col">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-gray-900">
+                      {produto.nome}
+                    </span>
+                    <span className="text-sm text-gray-500 ml-2">
+                      {produto.codigo}
+                    </span>
+                  </div>
                   {produto.descricao && (
-                    <span className="ml-2">• {produto.descricao}</span>
+                    <span className="text-sm text-gray-600 mt-1">
+                      {produto.descricao}
+                    </span>
                   )}
                 </div>
               </div>
