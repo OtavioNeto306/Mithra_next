@@ -11,6 +11,7 @@ import { Edit, Trash2, Search, Filter, Plus } from "lucide-react";
 import { Meta, MetaFilter } from "@/types/metas";
 import { CurrencyDisplay } from "@/components/metas/currency-display";
 import { useVendedores } from "@/hooks/useVendedores";
+import { useProdutos } from "@/hooks/useProdutos";
 
 interface MetasTableProps {
   metas: Meta[];
@@ -39,6 +40,7 @@ export function MetasTable({
   paginacao 
 }: MetasTableProps) {
   const { vendedores } = useVendedores();
+  const { produtos } = useProdutos();
   const { toast } = useToast();
   
   const [filters, setFilters] = useState<MetaFilter>({});
@@ -75,6 +77,12 @@ export function MetasTable({
   const getVendedorNome = (codigo: string) => {
     const vendedor = vendedores.find(v => v.CODI_PES === codigo);
     return vendedor ? vendedor.NOME_PES : codigo;
+  };
+
+  // Obter nome do produto
+  const getProdutoNome = (codigo: string) => {
+    const produto = produtos.find(p => p.CODIGO === codigo);
+    return produto ? produto.NOME : codigo;
   };
 
   // Manipular filtros
@@ -266,11 +274,18 @@ export function MetasTable({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="font-mono text-sm">
-                      {meta.tipo_meta === 'fornecedor' 
-                        ? meta.codigo_fornecedor 
-                        : meta.codigo_produto
-                      }
+                    <div>
+                      <div className="font-mono text-sm">
+                        {meta.tipo_meta === 'fornecedor' 
+                          ? meta.codigo_fornecedor 
+                          : meta.codigo_produto
+                        }
+                      </div>
+                      {meta.tipo_meta === 'produto' && meta.codigo_produto && (
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {getProdutoNome(meta.codigo_produto)}
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -349,4 +364,4 @@ export function MetasTable({
       )}
     </div>
   );
-} 
+}
