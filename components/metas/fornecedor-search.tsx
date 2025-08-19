@@ -26,7 +26,7 @@ export function FornecedorSearch({
   className,
   disabled = false
 }: FornecedorSearchProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(value?.nome || '');
   const [fornecedores, setFornecedores] = useState<Fornecedor[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -114,7 +114,7 @@ export function FornecedorSearch({
 
   const handleSelectFornecedor = (fornecedor: Fornecedor) => {
     onChange(fornecedor);
-    setSearchTerm(fornecedor.nome);
+    setSearchTerm(fornecedor.nome || '');
     setShowDropdown(false);
     setSelectedIndex(-1);
   };
@@ -128,7 +128,7 @@ export function FornecedorSearch({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
+    const newValue = e.target.value || '';
     setSearchTerm(newValue);
     setShowDropdown(true);
     setSelectedIndex(-1);
@@ -146,7 +146,7 @@ export function FornecedorSearch({
   // Sincronizar o valor do input com o fornecedor selecionado
   useEffect(() => {
     if (value) {
-      setSearchTerm(value.nome);
+      setSearchTerm(value.nome || '');
     } else {
       setSearchTerm('');
     }

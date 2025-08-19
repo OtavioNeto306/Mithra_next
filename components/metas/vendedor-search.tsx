@@ -61,7 +61,7 @@ export function VendedorSearch({
 
   // Filtrar vendedores baseado no termo de busca
   useEffect(() => {
-    if (!searchTerm.trim()) {
+    if (!searchTerm || !searchTerm.trim()) {
       setFilteredVendedores([]);
       setShowDropdown(false);
       return;
@@ -82,7 +82,7 @@ export function VendedorSearch({
       const vendedor = vendedores.find(v => v.codigo === value);
       if (vendedor) {
         setSelectedVendedor(vendedor);
-        setSearchTerm(vendedor.nome);
+        setSearchTerm(vendedor.nome || '');
       }
     } else {
       setSelectedVendedor(null);
@@ -105,10 +105,10 @@ export function VendedorSearch({
   // Selecionar vendedor
   const handleSelectVendedor = (vendedor: Vendedor) => {
     setSelectedVendedor(vendedor);
-    setSearchTerm(vendedor.nome);
+    setSearchTerm(vendedor.nome || '');
     onChange(vendedor.codigo);
     if (onNameChange) {
-      onNameChange(vendedor.nome);
+      onNameChange(vendedor.nome || '');
     }
     setShowDropdown(false);
   };
@@ -127,7 +127,7 @@ export function VendedorSearch({
 
   // Manipular mudança no input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
+    const newValue = e.target.value || '';
     setSearchTerm(newValue);
     
     // Se o usuário digitou algo diferente do nome selecionado, limpar a seleção
@@ -214,4 +214,4 @@ export function VendedorSearch({
       )}
     </div>
   );
-} 
+}

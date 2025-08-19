@@ -27,7 +27,7 @@ export function ProdutoSearch({
   className,
   disabled = false
 }: ProdutoSearchProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(value?.nome || '');
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -38,7 +38,7 @@ export function ProdutoSearch({
   // Carregar produtos com busca dinâmica
   useEffect(() => {
     const loadProdutos = async () => {
-      if (!searchTerm.trim()) {
+      if (!searchTerm || !searchTerm.trim()) {
         setProdutos([]);
         return;
       }
@@ -116,7 +116,7 @@ export function ProdutoSearch({
 
   const handleSelectProduto = (produto: Produto) => {
     onChange(produto);
-    setSearchTerm(produto.nome);
+    setSearchTerm(produto.nome || '');
     setShowDropdown(false);
     setSelectedIndex(-1);
   };
@@ -131,7 +131,7 @@ export function ProdutoSearch({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
+    const newValue = e.target.value || '';
     setSearchTerm(newValue);
     setShowDropdown(true);
     setSelectedIndex(-1);
@@ -143,7 +143,7 @@ export function ProdutoSearch({
   };
 
   const handleInputFocus = () => {
-    if (searchTerm.trim()) {
+    if (searchTerm && searchTerm.trim()) {
       setShowDropdown(true);
     }
   };
@@ -151,8 +151,8 @@ export function ProdutoSearch({
   // Sincronizar o valor do input com o produto selecionado
   useEffect(() => {
     if (value) {
-      setSearchTerm(value.nome);
-    } else if (!searchTerm) {
+      setSearchTerm(value.nome || '');
+    } else {
       setSearchTerm('');
     }
   }, [value]);
@@ -164,7 +164,7 @@ export function ProdutoSearch({
         <Input
           ref={inputRef}
           type="text"
-          value={searchTerm}
+          value={searchTerm || ''}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onKeyDown={handleKeyDown}
@@ -191,7 +191,7 @@ export function ProdutoSearch({
         </div>
       </div>
 
-      {showDropdown && searchTerm.trim() && (
+      {showDropdown && searchTerm && searchTerm.trim() && (
         <div
           ref={dropdownRef}
           className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
