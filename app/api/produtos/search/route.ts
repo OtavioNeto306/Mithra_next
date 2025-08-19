@@ -4,7 +4,6 @@ import { executeQuery } from '../../../../lib/db/odbc';
 interface Produto {
   codigo: string;
   nome: string;
-  descricao?: string;
 }
 
 export async function GET(req: NextRequest) {
@@ -13,26 +12,25 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get('search') || '';
     
     // Query para buscar produtos no Oracle via ODBC
-    // Assumindo uma estrutura comum de tabela de produtos
+    // Usando a estrutura correta da tabela PRODSERV
     let query = `
       SELECT 
-        CODIGO as codigo,
-        NOME as nome,
-        DESCRICAO as descricao
-      FROM PRODUTOS
-      WHERE 1=1
+        P.CODI_PSV as codigo,
+        P.DESC_PSV as nome
+      FROM PRODSERV P
+      WHERE P.PRSE_PSV = 'P' AND P.SITU_PSV = 'A'
     `;
     
     const params: any[] = [];
     
     // Adicionar filtro de busca se fornecido
     if (search.trim()) {
-      query += ` AND (UPPER(NOME) LIKE UPPER(?) OR UPPER(CODIGO) LIKE UPPER(?) OR UPPER(DESCRICAO) LIKE UPPER(?))`;
+      query += ` AND (UPPER(P.DESC_PSV) LIKE UPPER(?) OR UPPER(P.CODI_PSV) LIKE UPPER(?))`;
       const searchPattern = `%${search.trim()}%`;
-      params.push(searchPattern, searchPattern, searchPattern);
+      params.push(searchPattern, searchPattern);
     }
     
-    query += ` ORDER BY NOME`;
+    query += ` ORDER BY P.DESC_PSV`;
     
     // Limitar resultados para performance
     if (search.trim()) {
