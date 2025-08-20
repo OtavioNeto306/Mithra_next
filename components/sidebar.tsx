@@ -138,7 +138,7 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
     return allNavItems.map(group => ({
       ...group,
       items: group.items.filter(item => 
-        user.permissoes[item.permission as keyof typeof user.permissoes]
+        user.permissoes && user.permissoes[item.permission as keyof typeof user.permissoes]
       )
     })).filter(group => group.items.length > 0)
   }
