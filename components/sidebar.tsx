@@ -77,6 +77,13 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
             permission: "metas"
           },
           {
+            name: "Acompanhamento de Metas",
+            href: "/acompanhamento-metas",
+            icon: BarChart3,
+            description: "Monitorar progresso das metas",
+            permission: "metas"
+          },
+          {
             name: "Relatório de Checkin",
             href: "/checkin",
             icon: MapPin,

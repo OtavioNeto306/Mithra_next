@@ -83,4 +83,78 @@ export interface MetasStats {
   metas_por_mes: {
     [mes: number]: number;
   };
-} 
+}
+
+// Interfaces para acompanhamento de metas
+export interface VendaRealizada {
+  id: number;
+  codigo_vendedor: string;
+  ano: number;
+  mes: number;
+  tipo_venda: 'fornecedor' | 'produto';
+  codigo_fornecedor?: string;
+  codigo_produto?: string;
+  valor_vendido: number;
+  quantidade_vendida?: number;
+  data_venda: string;
+  numero_pedido?: string;
+}
+
+export interface ProgressoMeta {
+  meta_id: number;
+  codigo_vendedor: string;
+  nome_vendedor: string;
+  ano: number;
+  mes: number;
+  tipo_meta: 'fornecedor' | 'produto';
+  codigo_fornecedor?: string;
+  codigo_produto?: string;
+  valor_meta: number;
+  valor_realizado: number;
+  percentual_atingido: number;
+  status: 'nao_iniciado' | 'em_andamento' | 'atingida' | 'superada';
+  diferenca: number; // valor_realizado - valor_meta
+  vendas: VendaRealizada[];
+}
+
+export interface AcompanhamentoFilter {
+  codigo_vendedor?: string;
+  ano?: number;
+  mes_inicio?: number;
+  mes_fim?: number;
+  tipo_meta?: 'fornecedor' | 'produto';
+  codigo_fornecedor?: string;
+  codigo_produto?: string;
+  status?: 'nao_iniciado' | 'em_andamento' | 'atingida' | 'superada';
+}
+
+export interface EvolucaoMensal {
+  mes: number;
+  ano: number;
+  mes_nome: string;
+  valor_meta: number;
+  valor_realizado: number;
+  percentual: number;
+}
+
+export interface AcompanhamentoResponse {
+  success: boolean;
+  data?: {
+    progressos: ProgressoMeta[];
+    evolucao_mensal: EvolucaoMensal[];
+    resumo: {
+      total_metas: number;
+      metas_atingidas: number;
+      valor_total_metas: number;
+      valor_total_realizado: number;
+      percentual_geral: number;
+    };
+  };
+  message?: string;
+  error?: string;
+}
+
+export interface DadosMockados {
+  vendas_realizadas: VendaRealizada[];
+  progressos: ProgressoMeta[];
+}
