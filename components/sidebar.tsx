@@ -77,6 +77,13 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
             permission: "metas"
           },
           {
+            name: "Acompanhamento de Metas",
+            href: "/acompanhamento-metas",
+            icon: BarChart3,
+            description: "Monitorar progresso das metas",
+            permission: "metas"
+          },
+          {
             name: "Relatório de Checkin",
             href: "/checkin",
             icon: MapPin,
@@ -131,7 +138,7 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
     return allNavItems.map(group => ({
       ...group,
       items: group.items.filter(item => 
-        user.permissoes[item.permission as keyof typeof user.permissoes]
+        user.permissoes && user.permissoes[item.permission as keyof typeof user.permissoes]
       )
     })).filter(group => group.items.length > 0)
   }
