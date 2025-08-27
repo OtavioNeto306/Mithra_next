@@ -10,7 +10,7 @@ export async function GET() {
         id, usuario, nome, email, ativo,
         permissao_checkin, permissao_rotas, permissao_dashboard,
         permissao_metas, permissao_pedidos, permissao_produtos,
-        permissao_vendedores, permissao_configuracoes, permissao_gerencia,
+        permissao_prospects, permissao_propostas, permissao_vendedores, permissao_configuracoes, permissao_gerencia,
         created_at, updated_at
       FROM user_permissions 
       ORDER BY nome
@@ -41,7 +41,9 @@ export async function POST(request: NextRequest) {
       permissao_metas = 0,
       permissao_pedidos = 0,
       permissao_produtos = 0,
-      permissao_vendedores = 0,
+      permissao_prospects = 0,
+       permissao_propostas = 0,
+       permissao_vendedores = 0,
       permissao_configuracoes = 0,
       permissao_gerencia = 0
     } = body
@@ -77,13 +79,13 @@ export async function POST(request: NextRequest) {
         usuario, nome, email, senha, ativo,
         permissao_checkin, permissao_rotas, permissao_dashboard,
         permissao_metas, permissao_pedidos, permissao_produtos,
-        permissao_vendedores, permissao_configuracoes, permissao_gerencia
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        permissao_prospects, permissao_propostas, permissao_vendedores, permissao_configuracoes, permissao_gerencia
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       usuario, nome, email, hashedPassword, ativo,
       permissao_checkin, permissao_rotas, permissao_dashboard,
       permissao_metas, permissao_pedidos, permissao_produtos,
-      permissao_vendedores, permissao_configuracoes, permissao_gerencia
+      permissao_prospects, permissao_propostas, permissao_vendedores, permissao_configuracoes, permissao_gerencia
     ])
 
     return NextResponse.json(
@@ -115,6 +117,8 @@ export async function PUT(request: NextRequest) {
       permissao_metas,
       permissao_pedidos,
       permissao_produtos,
+      permissao_prospects,
+      permissao_propostas,
       permissao_vendedores,
       permissao_configuracoes,
       permissao_gerencia
@@ -134,7 +138,7 @@ export async function PUT(request: NextRequest) {
         usuario = ?, nome = ?, email = ?, ativo = ?,
         permissao_checkin = ?, permissao_rotas = ?, permissao_dashboard = ?,
         permissao_metas = ?, permissao_pedidos = ?, permissao_produtos = ?,
-        permissao_vendedores = ?, permissao_configuracoes = ?, permissao_gerencia = ?,
+        permissao_prospects = ?, permissao_propostas = ?, permissao_vendedores = ?, permissao_configuracoes = ?, permissao_gerencia = ?,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `
@@ -143,7 +147,7 @@ export async function PUT(request: NextRequest) {
       usuario, nome, email, ativo,
       permissao_checkin, permissao_rotas, permissao_dashboard,
       permissao_metas, permissao_pedidos, permissao_produtos,
-      permissao_vendedores, permissao_configuracoes, permissao_gerencia,
+      permissao_prospects, permissao_propostas, permissao_vendedores, permissao_configuracoes, permissao_gerencia,
       id
     ]
 
@@ -155,7 +159,7 @@ export async function PUT(request: NextRequest) {
           usuario = ?, nome = ?, email = ?, senha = ?, ativo = ?,
           permissao_checkin = ?, permissao_rotas = ?, permissao_dashboard = ?,
           permissao_metas = ?, permissao_pedidos = ?, permissao_produtos = ?,
-          permissao_vendedores = ?, permissao_configuracoes = ?, permissao_gerencia = ?,
+          permissao_prospects = ?, permissao_propostas = ?, permissao_vendedores = ?, permissao_configuracoes = ?, permissao_gerencia = ?,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `
@@ -163,7 +167,7 @@ export async function PUT(request: NextRequest) {
         usuario, nome, email, hashedPassword, ativo,
         permissao_checkin, permissao_rotas, permissao_dashboard,
         permissao_metas, permissao_pedidos, permissao_produtos,
-        permissao_vendedores, permissao_configuracoes, permissao_gerencia,
+        permissao_prospects, permissao_propostas, permissao_vendedores, permissao_configuracoes, permissao_gerencia,
         id
       ]
     }

@@ -26,6 +26,8 @@ interface Usuario {
   permissao_metas: number
   permissao_pedidos: number
   permissao_produtos: number
+  permissao_prospects: number
+  permissao_propostas: number
   permissao_vendedores: number
   permissao_configuracoes: number
   permissao_gerencia: number
@@ -45,6 +47,8 @@ interface FormData {
   permissao_metas: boolean
   permissao_pedidos: boolean
   permissao_produtos: boolean
+  permissao_prospects: boolean
+  permissao_propostas: boolean
   permissao_vendedores: boolean
   permissao_configuracoes: boolean
   permissao_gerencia: boolean
@@ -62,6 +66,8 @@ const initialFormData: FormData = {
   permissao_metas: false,
   permissao_pedidos: false,
   permissao_produtos: false,
+  permissao_prospects: false,
+  permissao_propostas: false,
   permissao_vendedores: false,
   permissao_configuracoes: false,
   permissao_gerencia: false
@@ -113,6 +119,8 @@ export default function UsuariosPage() {
         permissao_metas: user.permissao_metas === 1,
         permissao_pedidos: user.permissao_pedidos === 1,
         permissao_produtos: user.permissao_produtos === 1,
+        permissao_prospects: user.permissao_prospects === 1,
+        permissao_propostas: user.permissao_propostas === 1,
         permissao_vendedores: user.permissao_vendedores === 1,
         permissao_configuracoes: user.permissao_configuracoes === 1,
         permissao_gerencia: user.permissao_gerencia === 1
@@ -145,6 +153,8 @@ export default function UsuariosPage() {
         permissao_metas: formData.permissao_metas ? 1 : 0,
         permissao_pedidos: formData.permissao_pedidos ? 1 : 0,
         permissao_produtos: formData.permissao_produtos ? 1 : 0,
+        permissao_prospects: formData.permissao_prospects ? 1 : 0,
+        permissao_propostas: formData.permissao_propostas ? 1 : 0,
         permissao_vendedores: formData.permissao_vendedores ? 1 : 0,
         permissao_configuracoes: formData.permissao_configuracoes ? 1 : 0,
         permissao_gerencia: formData.permissao_gerencia ? 1 : 0
@@ -226,6 +236,8 @@ export default function UsuariosPage() {
     if (user.permissao_metas) permissoes.push('Metas')
     if (user.permissao_pedidos) permissoes.push('Pedidos')
     if (user.permissao_produtos) permissoes.push('Produtos')
+    if (user.permissao_prospects) permissoes.push('Prospects')
+    if (user.permissao_propostas) permissoes.push('Propostas')
     if (user.permissao_vendedores) permissoes.push('Vendedores')
     if (user.permissao_configuracoes) permissoes.push('Configurações')
     if (user.permissao_gerencia) permissoes.push('Gerência')
@@ -408,6 +420,28 @@ export default function UsuariosPage() {
                         }
                       />
                       <Label htmlFor="permissao_produtos">Produtos</Label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="permissao_prospects"
+                        checked={formData.permissao_prospects}
+                        onCheckedChange={(checked) => 
+                          setFormData(prev => ({ ...prev, permissao_prospects: !!checked }))
+                        }
+                      />
+                      <Label htmlFor="permissao_prospects">Prospects</Label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="permissao_propostas"
+                        checked={formData.permissao_propostas}
+                        onCheckedChange={(checked) => 
+                          setFormData(prev => ({ ...prev, permissao_propostas: !!checked }))
+                        }
+                      />
+                      <Label htmlFor="permissao_propostas">Propostas</Label>
                     </div>
                     
                     <div className="flex items-center space-x-2">

@@ -64,7 +64,7 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
             href: "/propostas",
             icon: FileText,
             description: "Gerenciar propostas comerciais",
-            permission: "pedidos"
+            permission: "propostas"
           },
           {
             name: "Produtos",
