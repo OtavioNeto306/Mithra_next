@@ -31,6 +31,7 @@ export function MetasForm({ meta, onSubmit, onCancel, loading = false }: MetasFo
     codigo_fornecedor: '',
     codigo_produto: '',
     valor_meta: 0,
+    quantidade_meta: undefined,
     observacoes: ''
   });
 
@@ -85,8 +86,10 @@ export function MetasForm({ meta, onSubmit, onCancel, loading = false }: MetasFo
       newErrors.codigo_produto = 'Código do produto é obrigatório';
     }
 
-    if (!formData.valor_meta || formData.valor_meta <= 0) {
-      newErrors.valor_meta = 'Valor da meta deve ser maior que zero';
+    // Validar que pelo menos um tipo de meta foi preenchido
+    if ((!formData.valor_meta || formData.valor_meta <= 0) && (!formData.quantidade_meta || formData.quantidade_meta <= 0)) {
+      newErrors.valor_meta = 'Pelo menos um tipo de meta (valor ou quantidade) deve ser preenchido';
+      newErrors.quantidade_meta = 'Pelo menos um tipo de meta (valor ou quantidade) deve ser preenchido';
     }
 
     setErrors(newErrors);
@@ -124,6 +127,7 @@ export function MetasForm({ meta, onSubmit, onCancel, loading = false }: MetasFo
           codigo_fornecedor: '',
           codigo_produto: '',
           valor_meta: 0,
+          quantidade_meta: undefined,
           observacoes: ''
         });
       }
@@ -286,23 +290,51 @@ export function MetasForm({ meta, onSubmit, onCancel, loading = false }: MetasFo
             </div>
           )}
 
-          {/* Valor da Meta */}
-          <div className="space-y-2">
-            <Label htmlFor="valor_meta">Valor da Meta (R$) *</Label>
-            <Input
-              id="valor_meta"
-              type="number"
-              step="0.01"
-              min="0"
-              value={formData.valor_meta || ''}
-              onChange={(e) => handleChange('valor_meta', parseFloat(e.target.value) || 0)}
-              placeholder="0,00"
-              disabled={loading}
-              className={errors.valor_meta ? 'border-red-500' : ''}
-            />
-            {errors.valor_meta && (
-              <p className="text-sm text-red-500">{errors.valor_meta}</p>
-            )}
+          {/* Valor da Meta e Quantidade */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="valor_meta">Valor da Meta (R$)</Label>
+              <Input
+                id="valor_meta"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.valor_meta || ''}
+                onChange={(e) => handleChange('valor_meta', parseFloat(e.target.value) || 0)}
+                placeholder="0,00"
+                disabled={loading}
+                className={errors.valor_meta ? 'border-red-500' : ''}
+              />
+              {errors.valor_meta && (
+                <p className="text-sm text-red-500">{errors.valor_meta}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="quantidade_meta">Quantidade da Meta (Toneladas)</Label>
+              <Input
+                id="quantidade_meta"
+                type="number"
+                step="0.001"
+                min="0"
+                value={formData.quantidade_meta || ''}
+                onChange={(e) => handleChange('quantidade_meta', parseFloat(e.target.value) || undefined)}
+                placeholder="0,000"
+                disabled={loading}
+                className={errors.quantidade_meta ? 'border-red-500' : ''}
+              />
+              {errors.quantidade_meta && (
+                <p className="text-sm text-red-500">{errors.quantidade_meta}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Informação sobre tipos de meta */}
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+            <p className="text-sm text-blue-700">
+              <strong>Nota:</strong> Preencha pelo menos um tipo de meta (valor ou quantidade). 
+              O sistema utilizará o campo preenchido para comparação com as vendas realizadas.
+            </p>
           </div>
 
           {/* Observações */}

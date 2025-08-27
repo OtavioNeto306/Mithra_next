@@ -1,0 +1,5 @@
+codigo_vendedor,ano,mes,tipo_meta,codigo_fornecedor,codigo_produto,valor_meta,quantidade_meta,observacoes
+VEND001,2024,1,fornecedor,FORN001,,15000.00,,Meta de vendas para fornecedor principal
+VEND001,2024,1,produto,,PROD001,,50.000,Meta de quantidade para produto específico
+VEND002,2024,2,fornecedor,FORN002,,25000.00,,Meta mensal fornecedor secundário
+VEND002,2024,2,produto,,PROD002,8000.00,25.500,Meta combinada valor e quantidade

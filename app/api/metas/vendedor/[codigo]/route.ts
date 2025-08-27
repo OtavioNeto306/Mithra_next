@@ -124,9 +124,10 @@ export async function POST(
       );
     }
 
-    if (!meta.valor_meta || meta.valor_meta <= 0) {
+    // Validar que pelo menos um tipo de meta foi preenchido
+    if ((!meta.valor_meta || meta.valor_meta <= 0) && (!meta.quantidade_meta || meta.quantidade_meta <= 0)) {
       return NextResponse.json(
-        { success: false, error: 'Valor da meta deve ser maior que zero' },
+        { success: false, error: 'Pelo menos um tipo de meta (valor ou quantidade) deve ser preenchido' },
         { status: 400 }
       );
     }
@@ -175,8 +176,8 @@ export async function POST(
       const result = await db.run(
         `INSERT INTO metas_vendedores (
           codigo_vendedor, ano, mes, tipo_meta, codigo_fornecedor, 
-          codigo_produto, valor_meta, observacoes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          codigo_produto, valor_meta, quantidade_meta, observacoes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           meta.codigo_vendedor,
           meta.ano,
@@ -184,7 +185,8 @@ export async function POST(
           meta.tipo_meta,
           meta.codigo_fornecedor || null,
           meta.codigo_produto || null,
-          meta.valor_meta,
+          meta.valor_meta || null,
+          meta.quantidade_meta || null,
           meta.observacoes || null
         ]
       );
@@ -218,4 +220,4 @@ export async function POST(
   } finally {
     if (db) await db.close();
   }
-} 
+}

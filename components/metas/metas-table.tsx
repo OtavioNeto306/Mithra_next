@@ -237,7 +237,7 @@ export function MetasTable({
               <TableHead>Período</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Fornecedor/Produto</TableHead>
-              <TableHead>Valor</TableHead>
+              <TableHead>Meta</TableHead>
               <TableHead>Observações</TableHead>
               <TableHead>Criado em</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -289,8 +289,22 @@ export function MetasTable({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium">
-                      <CurrencyDisplay value={meta.valor_meta} />
+                    <div className="space-y-1">
+                      {meta.valor_meta && (
+                        <div className="font-medium">
+                          <span className="text-xs text-muted-foreground mr-1">Valor:</span>
+                          <CurrencyDisplay value={meta.valor_meta} />
+                        </div>
+                      )}
+                      {meta.quantidade_meta && (
+                        <div className="font-medium">
+                          <span className="text-xs text-muted-foreground mr-1">Qtd:</span>
+                          <span>{meta.quantidade_meta.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} t</span>
+                        </div>
+                      )}
+                      {!meta.valor_meta && !meta.quantidade_meta && (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>

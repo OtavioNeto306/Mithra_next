@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { Plus, Target, TrendingUp, Users } from "lucide-react";
+import { Plus, Target, TrendingUp, Users, Upload } from "lucide-react";
 import { MetasTable } from "@/components/metas/metas-table";
 import { MetasForm } from "@/components/metas/metas-form";
+import { MetasImport } from "@/components/metas/metas-import";
 import { CurrencyDisplay } from "@/components/metas/currency-display";
 import { useMetas } from "@/hooks/useMetas";
 import { Meta, MetaCreate, MetaUpdate, MetaFilter } from "@/types/metas";
@@ -17,6 +18,7 @@ export function MetasPageWrapper() {
   const { toast } = useToast();
   
   const [showForm, setShowForm] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [editingMeta, setEditingMeta] = useState<Meta | null>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -118,6 +120,17 @@ export function MetasPageWrapper() {
     setShowForm(true);
   };
 
+  // Abrir modal de importação
+  const handleOpenImport = () => {
+    setShowImport(true);
+  };
+
+  // Manipular conclusão da importação
+  const handleImportComplete = () => {
+    fetchMetas(); // Recarregar lista após importação
+    setShowImport(false);
+  };
+
   // Abrir formulário para editar meta
   const handleEditMeta = (meta: Meta) => {
     setEditingMeta(meta);
@@ -157,10 +170,16 @@ export function MetasPageWrapper() {
             Gerencie as metas mensais dos vendedores
           </p>
         </div>
-        <Button onClick={handleNewMeta}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nova Meta
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleOpenImport}>
+            <Upload className="h-4 w-4 mr-2" />
+            Importar Excel/CSV
+          </Button>
+          <Button onClick={handleNewMeta}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Meta
+          </Button>
+        </div>
       </div>
 
       {/* Cards de estatísticas */}
@@ -261,6 +280,13 @@ export function MetasPageWrapper() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Modal de importação */}
+      <MetasImport
+        open={showImport}
+        onOpenChange={setShowImport}
+        onImportComplete={handleImportComplete}
+      />
     </div>
   );
-} 
+}
