@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
 
     logger.sql(mainQuery, queryParams);
 
-    const response = await fetch('http://localhost:3000/api/execute-query', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/execute-query`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
         ORDER BY i.ORDEM
       `;
 
-      const itensResponse = await fetch('http://localhost:3000/api/execute-query', {
+      const itensResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/execute-query`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -279,7 +279,7 @@ export async function GET(request: NextRequest) {
       WHERE ${whereClause}
     `;
 
-    const countResponse = await fetch('http://localhost:3000/api/execute-query', {
+    const countResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/execute-query`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

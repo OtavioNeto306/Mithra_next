@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     // Executar query usando conexão MySQL direta
     try {
       // Fazer chamada para a API MySQL real
-      const mysqlResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/mysql`, {
+      const mysqlResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/mysql`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -158,4 +158,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

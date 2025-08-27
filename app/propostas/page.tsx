@@ -8,10 +8,15 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Eye, FileText, Filter } from 'lucide-react';
+import { Search, FileText, Filter, Package } from 'lucide-react';
 import { usePropostas } from '@/hooks/usePropostas';
-// Removido import incorreto - funções implementadas localmente
-import Link from 'next/link';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from '@/components/ui/dialog';
 
 const statusOptions = [
   { value: 'todos', label: 'Todos os Status' },
@@ -55,6 +60,8 @@ export default function PropostasPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('todos');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showProductsModal, setShowProductsModal] = useState(false);
+  const [currentPropostaProdutos, setCurrentPropostaProdutos] = useState<any[]>([]);
   const itemsPerPage = 10;
 
   // Formatar data para exibição
@@ -247,11 +254,19 @@ export default function PropostasPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
-                          <Link href={`/propostas/${proposta.chave}`}>
-                            <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4" />
+                          <div className="flex items-center justify-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setCurrentPropostaProdutos(proposta.itens || []);
+                                setShowProductsModal(true);
+                              }}
+                            >
+                              <Package className="h-4 w-4 mr-2" />
+                              Produtos
                             </Button>
-                          </Link>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -290,6 +305,51 @@ export default function PropostasPage() {
         </CardContent>
       </Card>
       </div>
+
+      {/* Modal de Produtos */}
+      <Dialog open={showProductsModal} onOpenChange={setShowProductsModal}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Produtos da Proposta</DialogTitle>
+            <DialogDescription>
+              Lista de produtos associados a esta proposta.
+            </DialogDescription>
+          </DialogHeader>
+          {currentPropostaProdutos.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Nenhum produto encontrado para esta proposta.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Produto</TableHead>
+                    <TableHead>Quantidade</TableHead>
+                    <TableHead>Valor Unitário</TableHead>
+                    <TableHead>Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {currentPropostaProdutos.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <div className="font-medium">{item.produto.descricao}</div>
+                        <div className="text-sm text-muted-foreground">
+                          Código: {item.produto.codigo}
+                        </div>
+                      </TableCell>
+                      <TableCell>{item.quantidade}</TableCell>
+                      <TableCell>{formatarValor(item.valorUnitario)}</TableCell>
+                      <TableCell>{formatarValor(item.total)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 }
