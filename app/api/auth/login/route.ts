@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
         id, usuario, nome, email, senha, ativo,
         permissao_checkin, permissao_rotas, permissao_dashboard,
         permissao_metas, permissao_pedidos, permissao_produtos,
-        permissao_vendedores, permissao_configuracoes, permissao_gerencia
+        permissao_prospects, permissao_vendedores, permissao_configuracoes, permissao_gerencia
       FROM user_permissions 
       WHERE usuario = ?
     `, [usuario])
@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
       metas: user.permissao_metas === 1,
       pedidos: user.permissao_pedidos === 1,
       produtos: user.permissao_produtos === 1,
+      prospects: user.permissao_prospects === 1,
       vendedores: user.permissao_vendedores === 1,
       configuracoes: user.permissao_configuracoes === 1,
       gerencia: user.permissao_gerencia === 1

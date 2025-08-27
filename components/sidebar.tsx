@@ -15,7 +15,8 @@ import {
   Building2,
   BarChart3,
   UserCheck,
-  Route
+  Route,
+  UserPlus
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/components/auth-provider"
@@ -63,6 +64,13 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
             icon: Package,
             description: "Catálogo de produtos",
             permission: "produtos"
+          },
+          {
+            name: "Prospects",
+            href: "/prospects",
+            icon: UserPlus,
+            description: "Gerenciar prospects",
+            permission: "prospects"
           }
         ]
       },

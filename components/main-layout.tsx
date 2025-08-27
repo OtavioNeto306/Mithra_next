@@ -53,6 +53,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       '/dashboard': 'Dashboard',
       '/pedidos': 'Orçamentos',
       '/produtos': 'Produtos',
+      '/prospects': 'Prospects',
       '/acompanhamento-metas': 'Acompanhamento de Metas',
       '/checkin': 'Relatório de Checkin',
       '/metas': 'Metas de Vendedores',
