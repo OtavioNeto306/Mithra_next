@@ -15,6 +15,7 @@ interface User {
     metas: boolean
     pedidos: boolean
     produtos: boolean
+    prospects: boolean
     vendedores: boolean
     configuracoes: boolean
     gerencia: boolean
