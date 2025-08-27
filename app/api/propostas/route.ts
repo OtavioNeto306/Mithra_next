@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { ApiValidator } from '@/lib/validation';
 
-interface PedidoResponse {
+interface PropostaResponse {
   chave: number;
   numero: string;
   cliente: {
@@ -58,13 +58,13 @@ function convertValueFromDB(valueStr: string): number {
   return parseFloat(valueStr.replace(',', '.')) || 0;
 }
 
-// Função para mapear status do banco para interface
+// Função para mapear status do banco para interface - ESPECÍFICO PARA PROPOSTAS
 function mapStatusFromDB(status: string): string {
   switch (status?.toUpperCase()) {
-    case 'A': return 'pendente';
-    case 'F': return 'faturado';
-    case 'C': return 'cancelado';
-    case 'P': return 'em processamento';
+    case 'B': return 'aprovado';
+    case 'L': return 'reprovado';
+    case 'R': return 'expirado';
+    case 'E': return 'outros';
     default: return 'pendente';
   }
 }
@@ -114,9 +114,9 @@ export async function GET(request: NextRequest) {
     
     const offset = (pageNum - 1) * limitNum;
 
-    // Query para buscar pedidos com informações básicas
-    let whereConditions = ['1=1', 'c.TIPO = ?'];
-    const queryParams: any[] = ['O'];
+    // Query para buscar propostas com informações básicas
+    let whereConditions = ['c.TIPO = ?']; // FILTRO FIXO PARA TIPO = P
+    const queryParams: any[] = ['P'];
 
     // Filtro de busca
     if (searchSanitized) {
@@ -124,12 +124,12 @@ export async function GET(request: NextRequest) {
       queryParams.push(`%${searchSanitized}%`, `%${searchSanitized}%`);
     }
 
-    // Filtro de status
+    // Filtro de status - mapeamento específico para propostas
     if (statusSanitized && statusSanitized !== 'todos') {
-      const dbStatus = statusSanitized === 'pendente' ? 'A' : 
-                      statusSanitized === 'faturado' ? 'F' :
-                      statusSanitized === 'cancelado' ? 'C' :
-                      statusSanitized === 'em processamento' ? 'P' : '';
+      const dbStatus = statusSanitized === 'aprovado' ? 'B' : 
+                      statusSanitized === 'reprovado' ? 'L' :
+                      statusSanitized === 'expirado' ? 'R' :
+                      statusSanitized === 'outros' ? 'E' : '';
       if (dbStatus) {
         whereConditions.push('c.STATUS = ?');
         queryParams.push(dbStatus);
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
 
     const whereClause = whereConditions.join(' AND ');
 
-    // Query principal para buscar pedidos
+    // Query principal para buscar propostas
     const mainQuery = `
       SELECT 
         c.CHAVE,
@@ -185,13 +185,13 @@ export async function GET(request: NextRequest) {
       throw new Error(`Erro na consulta: ${response.statusText}`);
     }
 
-    const { data: pedidos } = await response.json();
+    const { data: propostas } = await response.json();
 
-    // Para cada pedido, buscar os itens
-    const pedidosCompletos: PedidoResponse[] = [];
+    // Para cada proposta, buscar os itens
+    const propostasCompletas: PropostaResponse[] = [];
 
-    for (const pedido of pedidos) {
-      // Query para buscar itens do pedido - TABELA CORRETA: itepdv com produt
+    for (const proposta of propostas) {
+      // Query para buscar itens da proposta
       const itensQuery = `
         SELECT 
           i.ORDEM,
@@ -218,7 +218,7 @@ export async function GET(request: NextRequest) {
         },
         body: JSON.stringify({
           query: itensQuery,
-          params: [pedido.CHAVE]
+          params: [proposta.CHAVE]
         })
       });
 
@@ -228,29 +228,29 @@ export async function GET(request: NextRequest) {
         itens = itensData.data || [];
       }
 
-      // Montar objeto do pedido
-      const pedidoCompleto: PedidoResponse = {
-        chave: pedido.CHAVE,
-        numero: pedido.NUMERO || '',
+      // Montar objeto da proposta
+      const propostaCompleta: PropostaResponse = {
+        chave: proposta.CHAVE,
+        numero: proposta.NUMERO || '',
         cliente: {
-          codigo: pedido.CLIENTE || '',
-          nome: pedido.NOME_CLIENTE || '',
-          email: pedido.EMAIL || '',
-          telefone: pedido.TELEFONE || '',
-          endereco: pedido.ENDERECO || '',
-          cgc: pedido.CGC || '',
+          codigo: proposta.CLIENTE || '',
+          nome: proposta.NOME_CLIENTE || '',
+          email: proposta.EMAIL || '',
+          telefone: proposta.TELEFONE || '',
+          endereco: proposta.ENDERECO || '',
+          cgc: proposta.CGC || '',
         },
         formaPagamento: {
-          codigo: pedido.FORMPG || '',
-          descricao: pedido.DESC_FORMPG || '',
+          codigo: proposta.FORMPG || '',
+          descricao: proposta.DESC_FORMPG || '',
         },
-        condicaoPagamento: pedido.CONDICAO || '',
-        emissao: convertDateFromDB(pedido.EMISSAO),
-        valor: convertValueFromDB(pedido.VALOR),
-        tipo: pedido.TIPO || '',
-        status: mapStatusFromDB(pedido.STATUS),
-        observacoes: pedido.OBSTXT || '',
-        vendedor: pedido.VENDEDOR || '',
+        condicaoPagamento: proposta.CONDICAO || '',
+        emissao: convertDateFromDB(proposta.EMISSAO),
+        valor: convertValueFromDB(proposta.VALOR),
+        tipo: proposta.TIPO || '',
+        status: mapStatusFromDB(proposta.STATUS),
+        observacoes: proposta.OBSTXT || '',
+        vendedor: proposta.VENDEDOR || '',
         itens: itens.map((item: any) => ({
           ordem: item.ORDEM || 0,
           produto: {
@@ -268,7 +268,7 @@ export async function GET(request: NextRequest) {
         }))
       };
 
-      pedidosCompletos.push(pedidoCompleto);
+      propostasCompletas.push(propostaCompleta);
     }
 
     // Query para contar total de registros
@@ -276,7 +276,6 @@ export async function GET(request: NextRequest) {
       SELECT COUNT(*) as total
       FROM CABPDV c 
       LEFT JOIN client cl ON c.CLIENTE = cl.CODIGO 
-      LEFT JOIN formpg f ON c.FORMPG = f.CODIGO 
       WHERE ${whereClause}
     `;
 
@@ -298,10 +297,10 @@ export async function GET(request: NextRequest) {
     }
 
     const duration = Date.now() - startTime;
-    logger.api('GET /api/pedidos', { page: pageNum, limit: limitNum, search: searchSanitized, status: statusSanitized }, duration);
+    logger.api('GET /api/propostas', { page: pageNum, limit: limitNum, search: searchSanitized, status: statusSanitized }, duration);
 
     return NextResponse.json({
-      data: pedidosCompletos,
+      data: propostasCompletas,
       pagination: {
         page: pageNum,
         limit: limitNum,
@@ -311,7 +310,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    logger.error('Erro ao buscar pedidos', error);
+    logger.error('Erro ao buscar propostas', error);
     return NextResponse.json(
       { 
         error: 'Erro interno do servidor',
