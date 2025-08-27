@@ -9,6 +9,7 @@ export interface Meta {
   codigo_fornecedor?: string;
   codigo_produto?: string;
   valor_meta: number;
+  quantidade_meta?: number; // Meta por quantidade (toneladas)
   observacoes?: string;
   data_cadastro: string;
   data_atualizacao: string;
@@ -22,6 +23,7 @@ export interface MetaCreate {
   codigo_fornecedor?: string;
   codigo_produto?: string;
   valor_meta: number;
+  quantidade_meta?: number; // Meta por quantidade (toneladas)
   observacoes?: string;
 }
 
@@ -33,6 +35,7 @@ export interface MetaUpdate {
   codigo_fornecedor?: string;
   codigo_produto?: string;
   valor_meta?: number;
+  quantidade_meta?: number; // Meta por quantidade (toneladas)
   observacoes?: string;
 }
 

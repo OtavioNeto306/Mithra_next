@@ -136,7 +136,7 @@ export async function GET(
 
     console.log('Buscando pedido:', id);
 
-    const response = await fetch('http://localhost:3000/api/execute-query', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/execute-query`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -185,7 +185,7 @@ export async function GET(
       ORDER BY i.ORDEM
     `;
 
-    const itensResponse = await fetch('http://localhost:3000/api/execute-query', {
+    const itensResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/execute-query`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -272,4 +272,4 @@ export async function GET(
       { status: 500 }
     );
   }
-} 
+}

@@ -16,7 +16,8 @@ import {
   BarChart3,
   UserCheck,
   Route,
-  UserPlus
+  UserPlus,
+  FileText
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/components/auth-provider"
@@ -56,6 +57,13 @@ export function Sidebar({ onClose, onLogout }: SidebarProps) {
             href: "/pedidos",
             icon: ShoppingCart,
             description: "Gerenciar orçamentos",
+            permission: "pedidos"
+          },
+          {
+            name: "Propostas",
+            href: "/propostas",
+            icon: FileText,
+            description: "Gerenciar propostas comerciais",
             permission: "pedidos"
           },
           {
