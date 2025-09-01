@@ -30,10 +30,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# database
-*.db3
-*.sqlite
-*.sqlite3
+
 
 # logs
 /logs
@@ -49,7 +46,7 @@ next-env.d.ts
 *.db3
 
 #banco de dados
-usuarios.db3
+
 
 # Pastas a serem ignoradas
 mysql-mcp-server/
