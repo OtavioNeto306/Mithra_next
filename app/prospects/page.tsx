@@ -58,6 +58,31 @@ export default function ProspectsPage() {
     }
   }
 
+  // Formatar data de nascimento
+  const formatarDataNascimento = (dataString: string) => {
+    if (!dataString) return "-"
+    try {
+      // Assumindo formato YYYYMMDD
+      const year = dataString.substring(0, 4)
+      const month = dataString.substring(4, 6)
+      const day = dataString.substring(6, 8)
+      return `${day}/${month}/${year}`
+    } catch {
+      return dataString
+    }
+  }
+
+  // Formatar coordenadas
+  const formatarCoordenada = (coordenada: string) => {
+    if (!coordenada) return "-"
+    try {
+      const num = parseFloat(coordenada)
+      return num.toFixed(6)
+    } catch {
+      return coordenada
+    }
+  }
+
   // Aplicar filtros
   const handleSearch = async () => {
     await fetchProspects({
@@ -206,7 +231,7 @@ export default function ProspectsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Lista de Prospects ({prospects.length})
+              Lista de Prospects - Todos os Campos ({prospects.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -230,29 +255,55 @@ export default function ProspectsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>CGC</TableHead>
                       <TableHead>Nome</TableHead>
+                      <TableHead>Data Nasc.</TableHead>
                       <TableHead>Telefone</TableHead>
                       <TableHead>Email</TableHead>
+                      <TableHead>Cidade</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead>Segmento</TableHead>
+                      <TableHead>Animal</TableHead>
+                      <TableHead>Inscrição</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Hora</TableHead>
+                      <TableHead>Latitude</TableHead>
+                      <TableHead>Longitude</TableHead>
                       <TableHead>Técnico</TableHead>
-                      <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {prospects.map((prospect, index) => (
                       <TableRow key={prospect.CGC || index}>
+                        <TableCell className="font-mono text-xs">
+                          {prospect.CGC || "-"}
+                        </TableCell>
                         <TableCell className="font-medium">
                           {prospect.NOME || "-"}
                         </TableCell>
+                        <TableCell>
+                          {formatarDataNascimento(prospect.DTNASC)}
+                        </TableCell>
                         <TableCell>{prospect.TELEFONE || "-"}</TableCell>
-                        <TableCell>{prospect.EMAIL || "-"}</TableCell>
+                        <TableCell className="max-w-[200px] truncate" title={prospect.EMAIL}>
+                          {prospect.EMAIL || "-"}
+                        </TableCell>
+                        <TableCell>{prospect.CIDADE || "-"}</TableCell>
+                        <TableCell>{prospect.ESTADO || "-"}</TableCell>
+                        <TableCell>{prospect.SEGMENTO || "-"}</TableCell>
+                        <TableCell>{prospect.ANIMAL || "-"}</TableCell>
+                        <TableCell>{prospect.INSCRI || "-"}</TableCell>
                         <TableCell>{formatarData(prospect.DATA)}</TableCell>
                         <TableCell>{formatarHora(prospect.HORA)}</TableCell>
-                        <TableCell>{prospect.TECNICO || "-"}</TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {formatarCoordenada(prospect.LATITUDE)}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {formatarCoordenada(prospect.LONGITUDE)}
+                        </TableCell>
                         <TableCell>
                           <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700">
-                            Ativo
+                            {prospect.TECNICO || "-"}
                           </span>
                         </TableCell>
                       </TableRow>
